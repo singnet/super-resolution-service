@@ -93,7 +93,7 @@ def initialize_diretories(directories_list, clear_directories=True):
             os.makedirs(directory)
         else:
             if clear_directories:
-                service.clear_path(directory)
+                clear_path(directory)
 
 
 def get_file_index(save_dir, prefix):
