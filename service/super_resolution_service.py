@@ -25,7 +25,8 @@ class SuperResolutionServicer(grpc_bt_grpc.SuperResolutionServicer):
         
         self.input_dir = "./temp/input"
         self.output_dir = "./temp/output"
-        
+        service.initialize_diretories([self.input_dir, self.output_dir])
+
         self.model_prefix = "./models/proSR/proSR_x"
         self.model_suffix = ".pth"
         

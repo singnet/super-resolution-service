@@ -85,6 +85,17 @@ def clear_file(file_path):
     return
 
 
+def initialize_diretories(directories_list, clear_directories=True):
+    """ Creates directories (or clears them if necesary)."""
+
+    for directory in directories_list:
+        if not os.path.exists(directory):
+            os.makedirs(directory)
+        else:
+            if clear_directories:
+                service.clear_path(directory)
+
+
 def get_file_index(save_dir, prefix):
     """ Gets number "x" of images of this type in the directory (so that the save path will be "prefix_x".
     Requires files named as follows: "*_xx.ext", e.g.: "contentimage_03.jpg", from which 03 would be extracted to return
