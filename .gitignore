@@ -7,3 +7,6 @@ config/
 data/
 flickrkey
 *.db
+resize_images.py
+upscale_images.py
+.idea/

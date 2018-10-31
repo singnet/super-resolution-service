@@ -121,9 +121,18 @@ def treat_image_input(input_argument, save_dir, image_type):
         log.debug("Treating image input as a url.")
         path = urlparse(input_argument).path
         file_ext = os.path.splitext(path)[1]
+        if file_ext.lower() not in ['jpg', 'jpeg', 'png']:
+            log.error('URL image extension not recognized. Should be .jpg, .jpeg or .png.')
+            return False
         save_path += file_ext
         log.debug("Downloading image under the path: {}".format(save_path))
         download(input_argument, save_path)
+        try:
+            Image.open(save_path)
+        except Exception as e:
+            log.error(e)
+            clear_file(save_path)
+            raise
 
     # If its a local file
     elif os.path.isfile(input_argument):
