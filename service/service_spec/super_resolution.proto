@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+message SuperResolutionRequest {
+    string input = 1;
+    int32 scale = 2;
+}
+
+message Image {
+    string data = 1;
+}
+
+service SuperResolution {
+    rpc increase_image_resolution (SuperResolutionRequest) returns (Image);
+}
