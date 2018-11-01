@@ -106,16 +106,18 @@ class SuperResolutionServicer(grpc_bt_grpc.SuperResolutionServicer):
         process = subprocess.Popen(command.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         try:
             stdout, stderr = process.communicate()
-            # if stderr:
-            #     log.error(stderr)
-            #     self.result.data = stderr
-            #     return self.result
         except Exception as e:
-            print('Entered Exception')
+            self.result.data = e
             log.error(e)
             for image in self.created_images:
                 service.clear_file(image)
-            return False
+            return self.result
+        if stderr:
+            log.error(stderr)
+            self.result.data = stderr
+            for image in self.created_images:
+                service.clear_file(image)
+            return self.result
 
         # Get output file path
         input_filename = os.path.split(self.created_images[0])[1]
