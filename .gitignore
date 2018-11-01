@@ -1,0 +1,9 @@
+images/
+models/
+service/cropped_data/
+*.jpg
+*.pyc
+config/
+data/
+flickrkey
+*.db
