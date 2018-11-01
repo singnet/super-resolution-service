@@ -143,7 +143,11 @@ class MyDataLoaderIter(_DataLoaderIter):
 
         while True:
             assert (not self.shutdown and self.batches_outstanding > 0)
-            idx, batch = self.data_queue.get()
+            try:
+                idx, batch = self.data_queue.get()
+            except Exception as e:
+                print(e)
+                raise
             self.batches_outstanding -= 1
             if idx != self.rcvd_idx:
                 # store out-of-order samples
