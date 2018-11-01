@@ -21,7 +21,7 @@ class SuperResolutionServicer(grpc_bt_grpc.SuperResolutionServicer):
     def __init__(self):
         log.debug("SuperResolutionServicer created!")
         
-        self.result = "Fail"
+        self.result = Image()
         
         self.input_dir = "./temp/input"
         self.output_dir = "./temp/output"
