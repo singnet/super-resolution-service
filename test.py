@@ -143,7 +143,7 @@ if __name__ == '__main__':
                 fn = osp.join(args.output_dir, osp.basename(data['input_fn'][0]))
                 io.imsave(fn, sr_img)
         except Exception as e:
-            log.error(e)
+            print(e)
             raise
 
         if len(args.target):
