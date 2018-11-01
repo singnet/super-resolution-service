@@ -106,7 +106,7 @@ class SuperResolutionServicer(grpc_bt_grpc.SuperResolutionServicer):
         process = subprocess.Popen(command.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         try:
             stdout, stderr = process.communicate()
-            if stderr is not None:
+            if stderr:
                 print('Logging stderr')
                 log.error(stderr)
                 print('Logged stderr')
