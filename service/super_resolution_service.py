@@ -107,11 +107,8 @@ class SuperResolutionServicer(grpc_bt_grpc.SuperResolutionServicer):
         try:
             stdout, stderr = process.communicate()
             if stderr:
-                print('Logging stderr')
-                print(type(stderr))
                 log.error(stderr)
-                print('Logged stderr')
-                self.result.data = stderr
+                self.result.data = str(stderr)
                 return self.result
         except Exception as e:
             log.error(e)
