@@ -31,10 +31,8 @@ class SuperResolutionServicer(grpc_bt_grpc.SuperResolutionServicer):
         self.model_prefix = self.model_dir + "/proSR/proSR_x"
         self.model_suffix = ".pth"
         if not os.path.exists(self.model_dir):
-            down = input("Models folder (./models) not found. Would you like to create it and download the models? [y/n]")
-            if down.lower() == 'y' or down.lower() == 'yes':
-                subprocess.call("./download_models.sh")
-
+            log.error("Models folder (./models) not found. Please run download_models.sh.")
+            return
         self.scale_list = [2, 4, 8]
         
         # Store the names of the images to delete them afterwards
