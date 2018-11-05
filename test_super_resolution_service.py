@@ -18,6 +18,7 @@ if __name__ == "__main__":
 
         input_image = \
             "https://www.gettyimages.ie/gi-resources/images/Homepage/Hero/UK/CMS_Creative_164657191_Kingfisher.jpg"
+        model = "proSR"
         scale = 2
 
         if grpc_method == "increase_image_resolution":

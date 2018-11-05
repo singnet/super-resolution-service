@@ -29,10 +29,16 @@ def main_loop(grpc_handler, args):
 def download(url, filename):
     """Downloads a file given its url and saves to filename."""
 
+    # Adds header to deal with images under https
+    opener = urllib.request.build_opener()
+    opener.addheaders = [('User-agent', 'Mozilla/5.0 (Windows NT x.y; Win64; x64; rv:9.0) Gecko/20100101 Firefox/10.0')]
+    urllib.request.install_opener(opener)
+
+    # Downloads the image
     try:
         urllib.request.urlretrieve(url, filename)
-    except Exception as e:
-        print(e)
+    except Exception:
+        raise
     return
 
 
@@ -85,6 +91,17 @@ def clear_file(file_path):
     return
 
 
+def initialize_diretories(directories_list, clear_directories=True):
+    """ Creates directories (or clears them if necesary)."""
+
+    for directory in directories_list:
+        if not os.path.exists(directory):
+            os.makedirs(directory)
+        else:
+            if clear_directories:
+                clear_path(directory)
+
+
 def get_file_index(save_dir, prefix):
     """ Gets number "x" of images of this type in the directory (so that the save path will be "prefix_x".
     Requires files named as follows: "*_xx.ext", e.g.: "contentimage_03.jpg", from which 03 would be extracted to return
@@ -121,9 +138,17 @@ def treat_image_input(input_argument, save_dir, image_type):
         log.debug("Treating image input as a url.")
         path = urlparse(input_argument).path
         file_ext = os.path.splitext(path)[1]
+        if file_ext.lower() not in ['.jpg', '.jpeg', '.png']:
+            log.error('URL image extension not recognized. Should be .jpg, .jpeg or .png. Got {}'.format(file_ext))
+            return False
         save_path += file_ext
         log.debug("Downloading image under the path: {}".format(save_path))
-        download(input_argument, save_path)
+        try:
+            download(input_argument, save_path)
+            Image.open(save_path)
+        except Exception:
+            clear_file(save_path)
+            raise
 
     # If its a local file
     elif os.path.isfile(input_argument):

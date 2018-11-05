@@ -117,31 +117,34 @@ if __name__ == '__main__':
         if len(args.target):
             psnr_mean = 0
             ssim_mean = 0
+        try:
+            for iid, data in enumerate(data_loader):
+                tic = time.time()
+                input = data['input']
+                if not args.cpu:
+                    input = input.cuda()
+                output = model(input, args.scale).cpu() + data['bicubic']
+                sr_img = tensor2im(output, mean, stddev)
+                toc = time.time()
+                if 'target' in data:
+                    hr_img = tensor2im(data['target'], mean, stddev)
+                    psnr_val, ssim_val = eval_psnr_and_ssim(
+                        sr_img, hr_img, args.scale)
+                    print_evaluation(
+                        osp.basename(data['input_fn'][0]), psnr_val, ssim_val,
+                        iid + 1, len(dataset), toc - tic)
+                    psnr_mean += psnr_val
+                    ssim_mean += ssim_val
+                else:
+                    print_evaluation(
+                        osp.basename(data['input_fn'][0]), np.nan, np.nan, iid + 1,
+                        len(dataset), toc - tic)
 
-        for iid, data in enumerate(data_loader):
-            tic = time.time()
-            input = data['input']
-            if not args.cpu:
-                input = input.cuda()
-            output = model(input, args.scale).cpu() + data['bicubic']
-            sr_img = tensor2im(output, mean, stddev)
-            toc = time.time()
-            if 'target' in data:
-                hr_img = tensor2im(data['target'], mean, stddev)
-                psnr_val, ssim_val = eval_psnr_and_ssim(
-                    sr_img, hr_img, args.scale)
-                print_evaluation(
-                    osp.basename(data['input_fn'][0]), psnr_val, ssim_val,
-                    iid + 1, len(dataset), toc - tic)
-                psnr_mean += psnr_val
-                ssim_mean += ssim_val
-            else:
-                print_evaluation(
-                    osp.basename(data['input_fn'][0]), np.nan, np.nan, iid + 1,
-                    len(dataset), toc - tic)
-
-            fn = osp.join(args.output_dir, osp.basename(data['input_fn'][0]))
-            io.imsave(fn, sr_img)
+                fn = osp.join(args.output_dir, osp.basename(data['input_fn'][0]))
+                io.imsave(fn, sr_img)
+        except Exception as e:
+            print(e)
+            raise
 
         if len(args.target):
             psnr_mean /= len(dataset)

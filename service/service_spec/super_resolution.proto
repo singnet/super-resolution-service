@@ -2,7 +2,8 @@ syntax = "proto3";
 
 message SuperResolutionRequest {
     string input = 1;
-    int32 scale = 2;
+    string model = 2;
+    int32 scale = 3;
 }
 
 message Image {

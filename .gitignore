@@ -1,9 +1,12 @@
 images/
-models/
+/models/
 service/cropped_data/
 *.jpg
 *.pyc
 config/
-data/
+/data/
 flickrkey
 *.db
+resize_images.py
+upscale_images.py
+.idea/

@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   name='service/service_spec/super_resolution.proto',
   package='',
   syntax='proto3',
-  serialized_pb=_b('\n+service/service_spec/super_resolution.proto\"6\n\x16SuperResolutionRequest\x12\r\n\x05input\x18\x01 \x01(\t\x12\r\n\x05scale\x18\x02 \x01(\x05\"\x15\n\x05Image\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\t2O\n\x0fSuperResolution\x12<\n\x19increase_image_resolution\x12\x17.SuperResolutionRequest\x1a\x06.Imageb\x06proto3')
+  serialized_pb=_b('\n+service/service_spec/super_resolution.proto\"E\n\x16SuperResolutionRequest\x12\r\n\x05input\x18\x01 \x01(\t\x12\r\n\x05model\x18\x02 \x01(\t\x12\r\n\x05scale\x18\x03 \x01(\x05\"\x15\n\x05Image\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\t2O\n\x0fSuperResolution\x12<\n\x19increase_image_resolution\x12\x17.SuperResolutionRequest\x1a\x06.Imageb\x06proto3')
 )
 
 
@@ -40,8 +40,15 @@ _SUPERRESOLUTIONREQUEST = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='scale', full_name='SuperResolutionRequest.scale', index=1,
-      number=2, type=5, cpp_type=1, label=1,
+      name='model', full_name='SuperResolutionRequest.model', index=1,
+      number=2, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='scale', full_name='SuperResolutionRequest.scale', index=2,
+      number=3, type=5, cpp_type=1, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -59,7 +66,7 @@ _SUPERRESOLUTIONREQUEST = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=47,
-  serialized_end=101,
+  serialized_end=116,
 )
 
 
@@ -89,8 +96,8 @@ _IMAGE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=103,
-  serialized_end=124,
+  serialized_start=118,
+  serialized_end=139,
 )
 
 DESCRIPTOR.message_types_by_name['SuperResolutionRequest'] = _SUPERRESOLUTIONREQUEST
@@ -119,8 +126,8 @@ _SUPERRESOLUTION = _descriptor.ServiceDescriptor(
   file=DESCRIPTOR,
   index=0,
   options=None,
-  serialized_start=126,
-  serialized_end=205,
+  serialized_start=141,
+  serialized_end=220,
   methods=[
   _descriptor.MethodDescriptor(
     name='increase_image_resolution',

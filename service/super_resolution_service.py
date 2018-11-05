@@ -7,6 +7,7 @@ import subprocess
 import concurrent.futures as futures
 import sys
 import os
+from urllib.error import HTTPError
 
 logging.basicConfig(
     level=10, format="%(asctime)s - [%(levelname)8s] - %(name)s - %(message)s"
@@ -21,23 +22,27 @@ class SuperResolutionServicer(grpc_bt_grpc.SuperResolutionServicer):
     def __init__(self):
         log.debug("SuperResolutionServicer created!")
         
-        self.result = "Fail"
+        self.result = Image()
         
         self.input_dir = "./temp/input"
         self.output_dir = "./temp/output"
-        
-        self.model_prefix = "./models/proSR/proSR_x"
-        self.model_suffix = ".pth"
-        
-        self.scale_list = [2, 4, 8]
-        
-        # Store the names of the images to delete them afterwards
-        self.created_images = []
+        service.initialize_diretories([self.input_dir, self.output_dir])
 
-    def treat_inputs(self, base_command, request, arguments):
+        self.model_dir = "./models"
+        self.prosr_model = "/proSR/proSR_x"
+        self.prosrgan_model = "/proSRGAN/proSRGAN_x"
+        self.model_suffix = ".pth"
+        if not os.path.exists(self.model_dir):
+            log.error("Models folder (./models) not found. Please run download_models.sh.")
+            return
+        self.scale_dict = {"proSR": [2, 4, 8],
+                           "proSRGAN": [4, 8]}
+
+    def treat_inputs(self, base_command, request, arguments, created_images):
         """Treats gRPC inputs and assembles lua command. Specifically, checks if required field have been specified,
         if the values and types are correct and, for each input/input_type adds the argument to the lua command."""
 
+        model_path = self.model_dir
         # Base command is the prefix of the command (e.g.: 'th test.lua ')
         file_index_str = ""
         command = base_command
@@ -59,9 +64,23 @@ class SuperResolutionServicer(grpc_bt_grpc.SuperResolutionServicer):
             # Deals with each field (or field type) separately. This is very specific to the lua command required.
             if field == "input":
                 assert(request.input != ""), "Input image field should not be empty."
-                image_path, file_index_str = service.treat_image_input(arg_value, self.input_dir, "{}".format(field))
-                self.created_images.append(image_path)
-                command += "--{} {} ".format(field, image_path)
+                try:
+                    image_path, file_index_str = \
+                        service.treat_image_input(arg_value, self.input_dir, "{}".format(field))
+                    print("Image path: {}".format(image_path))
+                    created_images.append(image_path)
+                    command += "--{} {} ".format(field, image_path)
+                except Exception as e:
+                    log.error(e)
+                    raise
+            elif field == "model":
+                if request.model == "proSR":
+                    model_path += self.prosr_model
+                elif request.model == "proSRGAN":
+                    model_path += self.prosrgan_model
+                else:
+                    log.error("Input field model not recognized. Should be either \"proSR\" or \"proSRGAN\". Got: {}"
+                              .format(request.model))
             elif field == "scale":
                 # If empty, fill with default, else check if valid
                 if request.scale == 0 or request.scale == "":
@@ -71,11 +90,11 @@ class SuperResolutionServicer(grpc_bt_grpc.SuperResolutionServicer):
                         scale = int(request.scale)
                     except Exception as e:
                         log.error(e)
-                        return False
-                if scale not in self.scale_list:
-                    log.error('Scale invalid. Should be one of {}.'.format(self.scale_list))
+                        raise
+                if scale not in self.scale_dict[request.model]:
+                    log.error('Scale invalid. Should be one of {}.'.format(self.scale_dict[request.model]))
                 str_scale = str(scale)
-                model_path = self.model_prefix + str_scale + self.model_suffix
+                model_path += str_scale + self.model_suffix
                 command += "--checkpoint {} --{} {} ".format(model_path, field, str_scale)
             else:
                 log.error("Command assembly error. Request field not found.")
@@ -87,31 +106,53 @@ class SuperResolutionServicer(grpc_bt_grpc.SuperResolutionServicer):
         """Python wrapper to AdaIN Style Transfer written in lua.
         Receives gRPC request, treats the inputs and creates a thread that executes the lua command."""
 
+        # Store the names of the images to delete them afterwards
+        created_images = []
+
         # Python command call arguments. Key = argument name, value = tuple(type, required?, default_value)
         arguments = {"input": ("image", True, None),
+                     "model": ("string", True, None),
                      "scale": ("int", False, 2)}
 
         # Treat inputs and assemble command
         base_command = "python3.6 test.py "
-        command, file_index_str = self.treat_inputs(base_command, request, arguments)
+        try:
+            command, file_index_str = self.treat_inputs(base_command, request, arguments, created_images)
+        except HTTPError as e:
+            error_message = "Error downloading the input image \n" + e.read()
+            log.error(error_message)
+            self.result.data = error_message
+            return self.result
+        except Exception as e:
+            log.error(e)
+            self.result.data = e
+            return self.result
         command += "--{} {}".format("output", self.output_dir)  # pre-defined for the service
 
         log.debug("Python command generated: {}".format(command))
 
         # Call super resolution. If it fails, log error, delete files and exit.
-        process = subprocess.Popen(command.split(), stdout=subprocess.PIPE)
+        process = subprocess.Popen(command.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         try:
-            process.communicate()
+            stdout, stderr = process.communicate()
         except Exception as e:
+            self.result.data = e
             log.error(e)
-            for image in self.created_images:
+            for image in created_images:
                 service.clear_file(image)
-            return False
+            return self.result
+        if stderr:
+            log.error(stderr)
+            self.result.data = stderr
+            for image in created_images:
+                service.clear_file(image)
+            return self.result
 
         # Get output file path
-        input_filename = os.path.split(self.created_images[0])[1]
+        input_filename = os.path.split(created_images[0])[1]
+        print("Input file name: {}".format(input_filename))
         output_image_path = self.output_dir + '/' + input_filename
-        self.created_images.append(output_image_path)
+        created_images.append(output_image_path)
 
         # Prepare gRPC output message
         self.result = Image()
@@ -119,7 +160,7 @@ class SuperResolutionServicer(grpc_bt_grpc.SuperResolutionServicer):
         log.debug("Output image generated. Service successfully completed.")
 
         # TODO: Clear temp images even if an error occurs
-        for image in self.created_images:
+        for image in created_images:
             service.clear_file(image)
 
         return self.result
