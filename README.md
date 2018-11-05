@@ -16,9 +16,9 @@ This repository was forked from [fperazzi/proSR](https://github.com/fperazzi/pro
 
 Usage information will be updated once the user interface is tested with SNET's dAPP (+gRPC). For now, it can be called via terminal:
 
-> snet client call increase_image_resolution '{"input":"https://pbs.twimg.com/profile_images/925531519858257920/IyYLHp-u_400x400.jpg", "scale": 2}'
+> snet client call increase_image_resolution '{"input":"https://pbs.twimg.com/profile_images/925531519858257920/IyYLHp-u_400x400.jpg", "model": "proSR", "scale": 2}'
 
-It can also be called at http://54.203.198.53:7001 via Artur's prototype dApp. In this case fill the "input" field with the url or path to a local image. The scale field should be filled with 2, 4 or 8. It is registered under SNET/super-resolution.
+It can also be called at http://54.203.198.53:7001 via Artur's prototype dApp, under SNET/super-resolution. In this case fill the "input" field with the url or path to a local image. The "model" field should be either "proSR" or "proSRGAN" (proSR trained with adversarial loss). According to the authors, proSRGAN generates lower PSNR (peak signal to noise ratio) but higher details. The scale field should be filled with 2 ("proSR" only), 4 or 8. 
 
 The README of the original repo follows:
 ___
