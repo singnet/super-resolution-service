@@ -106,7 +106,7 @@ class SuperResolutionServicer(grpc_bt_grpc.SuperResolutionServicer):
         try:
             command, file_index_str = self.treat_inputs(base_command, request, arguments)
         except HTTPError as e:
-            error_message = e.read()
+            error_message = "Error downloading the input image \n" + e.read()
             log.error(error_message)
             self.result.data = error_message
             return self.result

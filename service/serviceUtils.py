@@ -29,10 +29,15 @@ def main_loop(grpc_handler, args):
 def download(url, filename):
     """Downloads a file given its url and saves to filename."""
 
+    # Adds header to deal with images under https
+    opener = urllib.request.build_opener()
+    opener.addheaders = [('User-agent', 'Mozilla/5.0 (Windows NT x.y; Win64; x64; rv:9.0) Gecko/20100101 Firefox/10.0')]
+    urllib.request.install_opener(opener)
+
+    # Downloads the image
     try:
         urllib.request.urlretrieve(url, filename)
-    except Exception as e:
-        log.error(e)
+    except Exception:
         raise
     return
 
@@ -141,8 +146,7 @@ def treat_image_input(input_argument, save_dir, image_type):
         try:
             download(input_argument, save_path)
             Image.open(save_path)
-        except Exception as e:
-            log.error(e)
+        except Exception:
             clear_file(save_path)
             raise
 
