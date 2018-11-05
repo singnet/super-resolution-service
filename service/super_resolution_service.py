@@ -35,11 +35,8 @@ class SuperResolutionServicer(grpc_bt_grpc.SuperResolutionServicer):
             log.error("Models folder (./models) not found. Please run download_models.sh.")
             return
         self.scale_list = [2, 4, 8]
-        
-        # Store the names of the images to delete them afterwards
-        self.created_images = []
 
-    def treat_inputs(self, base_command, request, arguments):
+    def treat_inputs(self, base_command, request, arguments, created_images):
         """Treats gRPC inputs and assembles lua command. Specifically, checks if required field have been specified,
         if the values and types are correct and, for each input/input_type adds the argument to the lua command."""
 
@@ -68,7 +65,7 @@ class SuperResolutionServicer(grpc_bt_grpc.SuperResolutionServicer):
                     image_path, file_index_str = \
                         service.treat_image_input(arg_value, self.input_dir, "{}".format(field))
                     print("Image path: {}".format(image_path))
-                    self.created_images.append(image_path)
+                    created_images.append(image_path)
                     command += "--{} {} ".format(field, image_path)
                 except Exception as e:
                     log.error(e)
@@ -98,6 +95,9 @@ class SuperResolutionServicer(grpc_bt_grpc.SuperResolutionServicer):
         """Python wrapper to AdaIN Style Transfer written in lua.
         Receives gRPC request, treats the inputs and creates a thread that executes the lua command."""
 
+        # Store the names of the images to delete them afterwards
+        created_images = []
+
         # Python command call arguments. Key = argument name, value = tuple(type, required?, default_value)
         arguments = {"input": ("image", True, None),
                      "scale": ("int", False, 2)}
@@ -105,7 +105,7 @@ class SuperResolutionServicer(grpc_bt_grpc.SuperResolutionServicer):
         # Treat inputs and assemble command
         base_command = "python3.6 test.py "
         try:
-            command, file_index_str = self.treat_inputs(base_command, request, arguments)
+            command, file_index_str = self.treat_inputs(base_command, request, arguments, created_images)
         except HTTPError as e:
             error_message = "Error downloading the input image \n" + e.read()
             log.error(error_message)
@@ -126,21 +126,21 @@ class SuperResolutionServicer(grpc_bt_grpc.SuperResolutionServicer):
         except Exception as e:
             self.result.data = e
             log.error(e)
-            for image in self.created_images:
+            for image in created_images:
                 service.clear_file(image)
             return self.result
         if stderr:
             log.error(stderr)
             self.result.data = stderr
-            for image in self.created_images:
+            for image in created_images:
                 service.clear_file(image)
             return self.result
 
         # Get output file path
-        input_filename = os.path.split(self.created_images[0])[1]
+        input_filename = os.path.split(created_images[0])[1]
         print("Input file name: {}".format(input_filename))
         output_image_path = self.output_dir + '/' + input_filename
-        self.created_images.append(output_image_path)
+        created_images.append(output_image_path)
 
         # Prepare gRPC output message
         self.result = Image()
@@ -148,7 +148,7 @@ class SuperResolutionServicer(grpc_bt_grpc.SuperResolutionServicer):
         log.debug("Output image generated. Service successfully completed.")
 
         # TODO: Clear temp images even if an error occurs
-        for image in self.created_images:
+        for image in created_images:
             service.clear_file(image)
 
         return self.result
