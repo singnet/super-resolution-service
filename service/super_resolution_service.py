@@ -29,17 +29,20 @@ class SuperResolutionServicer(grpc_bt_grpc.SuperResolutionServicer):
         service.initialize_diretories([self.input_dir, self.output_dir])
 
         self.model_dir = "./models"
-        self.model_prefix = self.model_dir + "/proSR/proSR_x"
+        self.prosr_model = "/proSR/proSR_x"
+        self.prosrgan_model = "/proSRGAN/proSRGAN_x"
         self.model_suffix = ".pth"
         if not os.path.exists(self.model_dir):
             log.error("Models folder (./models) not found. Please run download_models.sh.")
             return
-        self.scale_list = [2, 4, 8]
+        self.scale_dict = {"proSR": [2, 4, 8],
+                           "proSRGAN": [4, 8]}
 
     def treat_inputs(self, base_command, request, arguments, created_images):
         """Treats gRPC inputs and assembles lua command. Specifically, checks if required field have been specified,
         if the values and types are correct and, for each input/input_type adds the argument to the lua command."""
 
+        model_path = self.model_dir
         # Base command is the prefix of the command (e.g.: 'th test.lua ')
         file_index_str = ""
         command = base_command
@@ -70,6 +73,14 @@ class SuperResolutionServicer(grpc_bt_grpc.SuperResolutionServicer):
                 except Exception as e:
                     log.error(e)
                     raise
+            elif field == "model":
+                if request.model == "proSR":
+                    model_path += self.prosr_model
+                elif request.model == "proSRGAN":
+                    model_path += self.prosrgan_model
+                else:
+                    log.error("Input field model not recognized. Should be either \"proSR\" or \"proSRGAN\". Got: {}"
+                              .format(request.model))
             elif field == "scale":
                 # If empty, fill with default, else check if valid
                 if request.scale == 0 or request.scale == "":
@@ -80,10 +91,10 @@ class SuperResolutionServicer(grpc_bt_grpc.SuperResolutionServicer):
                     except Exception as e:
                         log.error(e)
                         raise
-                if scale not in self.scale_list:
-                    log.error('Scale invalid. Should be one of {}.'.format(self.scale_list))
+                if scale not in self.scale_dict[request.model]:
+                    log.error('Scale invalid. Should be one of {}.'.format(self.scale_dict[request.model]))
                 str_scale = str(scale)
-                model_path = self.model_prefix + str_scale + self.model_suffix
+                model_path += str_scale + self.model_suffix
                 command += "--checkpoint {} --{} {} ".format(model_path, field, str_scale)
             else:
                 log.error("Command assembly error. Request field not found.")
@@ -100,6 +111,7 @@ class SuperResolutionServicer(grpc_bt_grpc.SuperResolutionServicer):
 
         # Python command call arguments. Key = argument name, value = tuple(type, required?, default_value)
         arguments = {"input": ("image", True, None),
+                     "model": ("string", True, None),
                      "scale": ("int", False, 2)}
 
         # Treat inputs and assemble command
