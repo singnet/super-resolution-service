@@ -7,6 +7,7 @@ import subprocess
 import concurrent.futures as futures
 import sys
 import os
+from urllib.error import HTTPError
 
 logging.basicConfig(
     level=10, format="%(asctime)s - [%(levelname)8s] - %(name)s - %(message)s"
@@ -104,6 +105,11 @@ class SuperResolutionServicer(grpc_bt_grpc.SuperResolutionServicer):
         base_command = "python3.6 test.py "
         try:
             command, file_index_str = self.treat_inputs(base_command, request, arguments)
+        except HTTPError as e:
+            error_message = e.read()
+            log.error(error_message)
+            self.result.data = error_message
+            return self.result
         except Exception as e:
             log.error(e)
             self.result.data = e
