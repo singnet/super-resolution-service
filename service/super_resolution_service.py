@@ -67,6 +67,7 @@ class SuperResolutionServicer(grpc_bt_grpc.SuperResolutionServicer):
                 try:
                     image_path, file_index_str = \
                         service.treat_image_input(arg_value, self.input_dir, "{}".format(field))
+                    print("Image path: {}".format(image_path))
                     self.created_images.append(image_path)
                     command += "--{} {} ".format(field, image_path)
                 except Exception as e:
@@ -137,6 +138,7 @@ class SuperResolutionServicer(grpc_bt_grpc.SuperResolutionServicer):
 
         # Get output file path
         input_filename = os.path.split(self.created_images[0])[1]
+        print("Input file name: {}".format(input_filename))
         output_image_path = self.output_dir + '/' + input_filename
         self.created_images.append(output_image_path)
 
