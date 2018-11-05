@@ -63,9 +63,14 @@ class SuperResolutionServicer(grpc_bt_grpc.SuperResolutionServicer):
             # Deals with each field (or field type) separately. This is very specific to the lua command required.
             if field == "input":
                 assert(request.input != ""), "Input image field should not be empty."
-                image_path, file_index_str = service.treat_image_input(arg_value, self.input_dir, "{}".format(field))
-                self.created_images.append(image_path)
-                command += "--{} {} ".format(field, image_path)
+                try:
+                    image_path, file_index_str = \
+                        service.treat_image_input(arg_value, self.input_dir, "{}".format(field))
+                    self.created_images.append(image_path)
+                    command += "--{} {} ".format(field, image_path)
+                except Exception as e:
+                    log.error(e)
+                    raise
             elif field == "scale":
                 # If empty, fill with default, else check if valid
                 if request.scale == 0 or request.scale == "":
@@ -75,7 +80,7 @@ class SuperResolutionServicer(grpc_bt_grpc.SuperResolutionServicer):
                         scale = int(request.scale)
                     except Exception as e:
                         log.error(e)
-                        return False
+                        raise
                 if scale not in self.scale_list:
                     log.error('Scale invalid. Should be one of {}.'.format(self.scale_list))
                 str_scale = str(scale)
@@ -97,7 +102,12 @@ class SuperResolutionServicer(grpc_bt_grpc.SuperResolutionServicer):
 
         # Treat inputs and assemble command
         base_command = "python3.6 test.py "
-        command, file_index_str = self.treat_inputs(base_command, request, arguments)
+        try:
+            command, file_index_str = self.treat_inputs(base_command, request, arguments)
+        except Exception as e:
+            log.error(e)
+            self.result.data = e
+            return self.result
         command += "--{} {}".format("output", self.output_dir)  # pre-defined for the service
 
         log.debug("Python command generated: {}".format(command))

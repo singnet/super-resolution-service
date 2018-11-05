@@ -32,7 +32,8 @@ def download(url, filename):
     try:
         urllib.request.urlretrieve(url, filename)
     except Exception as e:
-        print(e)
+        log.error(e)
+        raise
     return
 
 
@@ -137,8 +138,8 @@ def treat_image_input(input_argument, save_dir, image_type):
             return False
         save_path += file_ext
         log.debug("Downloading image under the path: {}".format(save_path))
-        download(input_argument, save_path)
         try:
+            download(input_argument, save_path)
             Image.open(save_path)
         except Exception as e:
             log.error(e)
