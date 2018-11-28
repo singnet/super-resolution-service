@@ -3,10 +3,10 @@ images/
 service/cropped_data/
 *.jpg
 *.pyc
-config/
 /data/
 flickrkey
 *.db
 resize_images.py
 upscale_images.py
 .idea/
+snetd.config.json

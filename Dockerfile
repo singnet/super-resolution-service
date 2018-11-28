@@ -20,3 +20,5 @@ RUN git clone https://github.com/ramongduraes/${REPO_NAME}.git &&\
     cd ${REPO_NAME} &&\
     . ./download_models.sh &&\
     . ./install_snet.sh
+
+WORKDIR ${PROJECT_ROOT}

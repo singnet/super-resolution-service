@@ -10,7 +10,7 @@ if __name__ == "__main__":
 
     try:
         # open a gRPC channel
-        endpoint = "localhost:701z6"
+        endpoint = "localhost:7016"
         channel = grpc.insecure_channel("{}".format(endpoint))
         print("opened channel")
 

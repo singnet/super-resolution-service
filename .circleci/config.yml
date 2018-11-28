@@ -36,7 +36,7 @@ jobs:
         name: Test local
         command: |
           ssh -o "StrictHostKeyChecking no" $SSH_USER@$SSH_HOST << EOF
-            nvidia-docker exec -i $DOCKER_CONTAINER_NAME_SUPER_RESOLUTION python3 $SERVICE_TEST_SCRIPT test
+            nvidia-docker exec -i $DOCKER_CONTAINER_NAME_SUPER_RESOLUTION python3 $SERVICE_TEST_SCRIPT
           EOF
 workflows:
   version: 2
