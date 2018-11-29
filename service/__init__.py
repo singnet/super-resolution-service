@@ -1,7 +1,7 @@
 from .serviceUtils import *
 import argparse
 
-registry = {"super_resolution_service": {"grpc": 7016, "snetd": 7017}}
+registry = {"super_resolution_service": {"grpc": 7016}}
 
 
 def common_parser(script_name):

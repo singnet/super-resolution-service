@@ -3,49 +3,42 @@ import subprocess
 import time
 import os
 import sys
-import argparse
 import logging
 import threading
 
 from service import registry
 
+service_name = "super_resolution"
+
 logging.basicConfig(
     level=10, format="%(asctime)s - [%(levelname)8s] - %(name)s - %(message)s"
 )
-log = logging.getLogger("run_super_resolution_service")
+log = logging.getLogger("run_" + service_name + "_service")
 
 
 def main():
-    parser = argparse.ArgumentParser(prog=__file__)
-    parser.add_argument(
-        "--daemon-config-path",
-        help="File with daemon configuration.",
-        required=False,
-        default="config/"
-    )
-    args = parser.parse_args(sys.argv[1:])
 
     root_path = pathlib.Path(__file__).absolute().parent
 
     # All services modules go here
-    service_modules = ["service.super_resolution_service"]
+    service_modules = ["service." + service_name + "_service"]
 
     # Removing all previous snetd .db file
-    os.system("rm *.db")
+    os.system("rm snetd*.db")
 
     # Call for all the services listed in service_modules
-    start_all_services(root_path, service_modules, args.daemon_config_path)
+    start_all_services(root_path, service_modules)
 
     # Infinite loop to serve the services
     while True:
         try:
             time.sleep(1)
         except Exception as e:
-            print(e)
+            log.error(e)
             exit(0)
 
 
-def start_all_services(cwd, service_modules, config_path=None):
+def start_all_services(cwd, service_modules):
     """
     Loop through all service_modules and start them.
     For each one, an instance of Daemon 'snetd' is created.
@@ -55,59 +48,46 @@ def start_all_services(cwd, service_modules, config_path=None):
     try:
         for i, service_module in enumerate(service_modules):
             server_name = service_module.split(".")[-1]
-            print("Launching", service_module, "on ports", str(registry[server_name]))
+            log.info("Launching", service_module, "on ports", str(registry[server_name]))
 
-            snetd_config = None
-            if config_path:
-                snetd_config = pathlib.Path(config_path) / (
-                    "snetd_" + server_name + ".json"
-                )
-
-            process_thread = threading.Thread(
-                target=start_service, args=(cwd, service_module, snetd_config)
-            )
+            process_thread = threading.Thread(target=start_service, args=(cwd, service_module))
 
             # Bind the thread with the main() to abort it when main() exits.
             process_thread.daemon = True
             process_thread.start()
 
     except Exception as e:
-        print(e)
+        log.error(e)
         return False
 
     return True
 
 
-def start_service(cwd, service_module, daemon_config_file=None):
+def start_service(cwd, service_module):
     """
-    Starts the python module of the service at the passed JSON-RPC port and
-    an instance of 'snetd' for the service.
+    Starts SNET Daemon ("snetd") and the python module of the service at the passed gRPC port.
     """
+    start_snetd(str(cwd))
+
     service_name = service_module.split(".")[-1]
     grpc_port = registry[service_name]["grpc"]
     subprocess.Popen(
         [sys.executable, "-m", service_module, "--grpc-port", str(grpc_port)],
-        cwd=str(cwd),
-    )
-    db_file = "db_" + service_name + ".db"
-    start_snetd(str(cwd), daemon_config_file, db_file)
+        cwd=str(cwd))
 
 
-def start_snetd(cwd, daemon_config_file=None, db_file=None):
+def start_snetd(cwd):
     """
-    Starts the Daemon 'snetd' with:
-    - Configurations from: daemon_config_file
-    - Database in db_file
+    Starts the Daemon 'snetd'
     """
-    cmd = ["snetd"]
-    if db_file is not None:
-        cmd.extend(["--db-path", str(db_file)])
-    if daemon_config_file is not None:
-        cmd.extend(["--config", str(daemon_config_file)])
+    try:
+        cmd = ["snetd", "serve"]
         subprocess.Popen(cmd, cwd=str(cwd))
-        return True
-    log.error("No Daemon config file!")
-    return False
+    except Exception as e:
+        log.error(e)
+        print(e)
+        exit(1)
+    return True
 
 
 if __name__ == "__main__":

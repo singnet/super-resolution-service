@@ -14,27 +14,25 @@ if __name__ == "__main__":
         channel = grpc.insecure_channel("{}".format(endpoint))
         print("opened channel")
 
+        # setting parameters
         grpc_method = "increase_image_resolution"
-
         input_image = \
             "https://www.gettyimages.ie/gi-resources/images/Homepage/Hero/UK/CMS_Creative_164657191_Kingfisher.jpg"
         model = "proSR"
         scale = 2
 
-        if grpc_method == "increase_image_resolution":
-            # create a stub (client)
-            stub = grpc_bt_grpc.SuperResolutionStub(channel)
-            # create a valid request message
-            request = grpc_bt_pb2.SuperResolutionRequest(input=input_image,
-                                                         scale=scale)
-            # make the call
-            response = stub.increase_image_resolution(request)
+        # create a stub (client)
+        stub = grpc_bt_grpc.SuperResolutionStub(channel)
+        # create a valid request message
+        request = grpc_bt_pb2.SuperResolutionRequest(input=input_image,
+                                                     scale=scale)
+        # make the call
+        response = stub.increase_image_resolution(request)
 
-            # et voilà
-            base64_to_jpg(response.data, "/Shared/super_resolution_test_output.jpg")
-            print("Service completed!")
-        else:
-            print("Invalid method!")
+        # et voilà
+        base64_to_jpg(response.data, "/Shared/super_resolution_test_output.jpg")
+        print("Service completed!")
 
     except Exception as e:
         print(e)
+        exit(1)

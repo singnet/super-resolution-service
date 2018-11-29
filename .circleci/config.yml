@@ -16,15 +16,13 @@ jobs:
           ssh -o "StrictHostKeyChecking no" $SSH_USER@$SSH_HOST << EOF
             nvidia-docker stop $DOCKER_CONTAINER_NAME_SUPER_RESOLUTION || true && nvidia-docker rename $DOCKER_CONTAINER_NAME_SUPER_RESOLUTION ${DOCKER_CONTAINER_NAME_SUPER_RESOLUTION}_old || true
             nvidia-docker build \
-              --build-arg agent_contract=$AGENT_CONTRACT_SUPER_RESOLUTION \
-              --build-arg private_key=$PRIVATE_KEY \
-              -t $DOCKER_IMAGE_NAME_SUPER_RESOLUTION https://github.com/ramongduraes/super-resolution-service.git
+              -t $DOCKER_IMAGE_NAME_SUPER_RESOLUTION https://github.com/ramongduraes/super-resolution-service.git#master
             nvidia-docker run --runtime=nvidia \
               --name $DOCKER_CONTAINER_NAME_SUPER_RESOLUTION \
               --restart unless-stopped \
               -p $SNETD_PORT:$SNETD_PORT \
               --shm-size=1gb \
-              -di $DOCKER_IMAGE_NAME_SUPER_RESOLUTION sh -c "git pull;python3 $SERVICE_RUN_SCRIPT --daemon-conf ."
+              -di $DOCKER_IMAGE_NAME_SUPER_RESOLUTION sh -c "git pull;python3 $SERVICE_RUN_SCRIPT"
           EOF
     - run:
         name: Remove Old Docker Container
