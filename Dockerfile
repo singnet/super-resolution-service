@@ -5,7 +5,7 @@ FROM pytorch/pytorch:0.4.1-cuda9-cudnn7-runtime
 ENV REPO_NAME=super-resolution-service
 ENV PROJECT_ROOT=/root/${REPO_NAME}
 ENV SERVICE_NAME=super-resolution
-ENV PYTHONPATH=${PROJECT_ROOT}/lib
+ENV PYTHONPATH=${PROJECT_ROOT}/service/lib
 ENV SNETD_HOST=http://54.203.198.53
 ENV SNETD_PORT=7017
 ENV GRPC_HOST=http://localhost
