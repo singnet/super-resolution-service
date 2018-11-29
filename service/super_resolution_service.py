@@ -33,7 +33,7 @@ class SuperResolutionServicer(grpc_bt_grpc.SuperResolutionServicer):
         self.prosrgan_model = "/proSRGAN/proSRGAN_x"
         self.model_suffix = ".pth"
         if not os.path.exists(self.model_dir):
-            log.error("Models folder (./models) not found. Please run download_models.sh.")
+            log.error("Models folder ({}) not found. Please run download_models.sh.".format(self.model_dir))
             return
         self.scale_dict = {"proSR": [2, 4, 8],
                            "proSRGAN": [4, 8]}
