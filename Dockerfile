@@ -16,7 +16,8 @@ RUN apt-get install -y git wget unzip
 RUN pip install --upgrade pip
 
 # Cloning service repository to download models and install snet-cli and daemon
-RUN git clone https://github.com/ramongduraes/${REPO_NAME}.git &&\
+RUN cd /root/ &&\
+    git clone https://github.com/ramongduraes/${REPO_NAME}.git &&\
     cd ${REPO_NAME} &&\
     . ./download_models.sh &&\
     . ./install_snet.sh

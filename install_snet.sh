@@ -76,10 +76,8 @@ elif [[ "$LANGUAGE" = "java" ]]; then
     curl -OL http://central.maven.org/maven2/io/grpc/protoc-gen-grpc-java/1.16.1/protoc-gen-grpc-java-1.16.1-linux-x86_64.exe
     mv protoc-gen-grpc-java-1.16.1-linux-x86_64.exe /usr/local/bin/protoc-gen-grpc-java
     chmod +x /usr/local/bin/protoc-gen-grpc-java
-elif [[ "$LANGUAGE" = "" ]]; then
-    echo "Programming language not specified. No extra steps."
 else
-    echo "Optional argument (programming language) not recognized. Should be go, cpp or java."
+    echo "Optional argument (programming language) not specified or not recognized (should be go, cpp or java)."
 fi
 
 echo "Snet components successfully installed."
