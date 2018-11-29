@@ -4,7 +4,7 @@ import grpc
 import service.service_spec.super_resolution_pb2_grpc as grpc_bt_grpc
 import service.service_spec.super_resolution_pb2 as grpc_bt_pb2
 
-from service import registry, base64_to_jpg
+from service import registry, base64_to_jpg, clear_file
 
 if __name__ == "__main__":
 
@@ -34,7 +34,9 @@ if __name__ == "__main__":
         print("Response received.")
 
         # et voilà
-        base64_to_jpg(response.data, "/Shared/super_resolution_test_output.jpg")
+        output_file_path = "./super_resolution_test_output.jpg"
+        base64_to_jpg(response.data, output_file_path)
+        clear_file(output_file_path)
         print("Service completed!")
 
     except Exception as e:
