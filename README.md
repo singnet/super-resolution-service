@@ -1,5 +1,5 @@
 <a href="https://singularitynet.io/">
-<img align="right" src="service/singularityNETblue.png" alt="drawing" width="160"/>
+<img align="right" src="docs/singularityNETblue.png" alt="drawing" width="160"/>
 </a>
 
 # Super Resolution

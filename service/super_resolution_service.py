@@ -24,11 +24,11 @@ class SuperResolutionServicer(grpc_bt_grpc.SuperResolutionServicer):
         
         self.result = Image()
         
-        self.input_dir = "./temp/input"
-        self.output_dir = "./temp/output"
+        self.input_dir = "./service/temp/input"
+        self.output_dir = "./service/temp/output"
         service.initialize_diretories([self.input_dir, self.output_dir])
 
-        self.model_dir = "./models"
+        self.model_dir = "./service/models"
         self.prosr_model = "/proSR/proSR_x"
         self.prosrgan_model = "/proSRGAN/proSRGAN_x"
         self.model_suffix = ".pth"
@@ -103,8 +103,7 @@ class SuperResolutionServicer(grpc_bt_grpc.SuperResolutionServicer):
         return command, file_index_str
 
     def increase_image_resolution(self, request, context):
-        """Python wrapper to AdaIN Style Transfer written in lua.
-        Receives gRPC request, treats the inputs and creates a thread that executes the lua command."""
+        """Increases the resolution of a given image (request.image) """
 
         # Store the names of the images to delete them afterwards
         created_images = []
@@ -115,7 +114,7 @@ class SuperResolutionServicer(grpc_bt_grpc.SuperResolutionServicer):
                      "scale": ("int", False, 2)}
 
         # Treat inputs and assemble command
-        base_command = "python3.6 test.py "
+        base_command = "python3.6 ./service/increase_resolution.py "
         try:
             command, file_index_str = self.treat_inputs(base_command, request, arguments, created_images)
         except HTTPError as e:

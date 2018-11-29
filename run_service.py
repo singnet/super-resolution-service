@@ -8,12 +8,10 @@ import threading
 
 from service import registry
 
-service_name = "super_resolution"
-
 logging.basicConfig(
     level=10, format="%(asctime)s - [%(levelname)8s] - %(name)s - %(message)s"
 )
-log = logging.getLogger("run_" + service_name + "_service")
+log = logging.getLogger("run_super_resolution_service")
 
 
 def main():
@@ -21,10 +19,10 @@ def main():
     root_path = pathlib.Path(__file__).absolute().parent
 
     # All services modules go here
-    service_modules = ["service." + service_name + "_service"]
+    service_modules = ["service.super_resolution_service"]
 
     # Removing all previous snetd .db file
-    os.system("rm snetd*.db")
+    os.system("rm *.db")
 
     # Call for all the services listed in service_modules
     start_all_services(root_path, service_modules)
@@ -48,7 +46,7 @@ def start_all_services(cwd, service_modules):
     try:
         for i, service_module in enumerate(service_modules):
             server_name = service_module.split(".")[-1]
-            log.info("Launching", service_module, "on ports", str(registry[server_name]))
+            log.info("Launching {} on ports {}".format(str(registry[server_name]), service_module))
 
             process_thread = threading.Thread(target=start_service, args=(cwd, service_module))
 
