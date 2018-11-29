@@ -25,6 +25,7 @@ if __name__ == "__main__":
         stub = grpc_bt_grpc.SuperResolutionStub(channel)
         # create a valid request message
         request = grpc_bt_pb2.SuperResolutionRequest(input=input_image,
+                                                     model=model,
                                                      scale=scale)
         # make the call
         response = stub.increase_image_resolution(request)
