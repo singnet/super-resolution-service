@@ -23,12 +23,15 @@ if __name__ == "__main__":
 
         # create a stub (client)
         stub = grpc_bt_grpc.SuperResolutionStub(channel)
+        print("Stub created.")
+
         # create a valid request message
         request = grpc_bt_pb2.SuperResolutionRequest(input=input_image,
                                                      model=model,
                                                      scale=scale)
         # make the call
         response = stub.increase_image_resolution(request)
+        print("Response received.")
 
         # et voilà
         base64_to_jpg(response.data, "/Shared/super_resolution_test_output.jpg")
