@@ -10,9 +10,9 @@ if __name__ == "__main__":
 
     try:
         # open a gRPC channel
-        endpoint = "localhost:7016"
+        endpoint = "localhost:{}".format(registry["super_resolution_service"]["grpc"])
         channel = grpc.insecure_channel("{}".format(endpoint))
-        print("opened channel")
+        print("Opened channel")
 
         # setting parameters
         grpc_method = "increase_image_resolution"

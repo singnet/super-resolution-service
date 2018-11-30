@@ -23,12 +23,13 @@ class SuperResolutionServicer(grpc_bt_grpc.SuperResolutionServicer):
         log.debug("SuperResolutionServicer created!")
         
         self.result = Image()
-        
-        self.input_dir = "./service/temp/input"
-        self.output_dir = "./service/temp/output"
+
+        self.root_path = "/root/super-resolution-service"
+        self.input_dir = self.root_path + "/service/temp/input"
+        self.output_dir = self.root_path + "/service/temp/output"
         service.initialize_diretories([self.input_dir, self.output_dir])
 
-        self.model_dir = "./service/models"
+        self.model_dir = self.root_path + "/service/models"
         self.prosr_model = "/proSR/proSR_x"
         self.prosrgan_model = "/proSRGAN/proSRGAN_x"
         self.scale_dict = {"proSR": [2, 4, 8],
