@@ -19,7 +19,7 @@ This service uses convolutional neural networks to increase the resolution of an
 This repository was forked from [fperazzi/proSR](https://github.com/fperazzi/proSR). The original code is written in Python 3 (using Pytorch) and has been integrated into the SingularityNET using Python 3.6.
 
 Refer to:
-- [The User's Guide](https://github.com/singnet/super-resolution-service/docs/users_guide/super-resolution.md): for information about how to use this code as a SingularityNET service;
+- [The User's Guide](https://singnet.github.io/super-resolution-service/): for information about how to use this code as a SingularityNET service;
 - [The Original Repository](https://github.com/fperazzi/proSR): for up-to-date information on [FPerazzi](https://github.com/fperazzi) implementation of this code.
 - [SingularityNET Wiki](https://github.com/singnet/wiki): for information and tutorials on how to use the SingularityNET and its services.
 

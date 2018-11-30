@@ -54,14 +54,14 @@ Example:
 - Scale: 2
 - Input image:
 
-![Tiger](../assets/users_guide/tiger_original.jpeg)
+![Tiger](assets/users_guide/tiger_original.jpeg)
 
 - Output image:
 
-![Tiger_proSR_2](../assets/users_guide/tiger_proSR_2.jpeg)
+![Tiger_proSR_2](assets/users_guide/tiger_proSR_2.jpeg)
 
 Comparison:
 
 Service Output (proSR)             | Simple Bicubic Upscaling
 :---------------------------------:|:-------------------------:
-<img src="../assets/users_guide/tiger_proSR_2.jpeg"> | <img src="../assets/users_guide/tiger_bicubic.jpeg">
+<img src="assets/users_guide/tiger_proSR_2.jpeg"> | <img src="assets/users_guide/tiger_bicubic.jpeg">
