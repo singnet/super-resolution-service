@@ -31,12 +31,13 @@ class SuperResolutionServicer(grpc_bt_grpc.SuperResolutionServicer):
         self.model_dir = "./service/models"
         self.prosr_model = "/proSR/proSR_x"
         self.prosrgan_model = "/proSRGAN/proSRGAN_x"
+        self.scale_dict = {"proSR": [2, 4, 8],
+                           "proSRGAN": [4, 8]}
         self.model_suffix = ".pth"
         if not os.path.exists(self.model_dir):
             log.error("Models folder ({}) not found. Please run download_models.sh.".format(self.model_dir))
             return
-        self.scale_dict = {"proSR": [2, 4, 8],
-                           "proSRGAN": [4, 8]}
+
 
     def treat_inputs(self, base_command, request, arguments, created_images):
         """Treats gRPC inputs and assembles lua command. Specifically, checks if required field have been specified,
