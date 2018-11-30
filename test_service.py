@@ -35,9 +35,12 @@ if __name__ == "__main__":
 
         # et voilà
         output_file_path = "./super_resolution_test_output.jpg"
-        base64_to_jpg(response.data, output_file_path)
-        clear_file(output_file_path)
-        print("Service completed!")
+        if response.data:
+            base64_to_jpg(response.data, output_file_path)
+            clear_file(output_file_path)
+            print("Service completed!")
+        else:
+            print("Service failed! No data received.")
 
     except Exception as e:
         print(e)
