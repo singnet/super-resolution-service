@@ -23,20 +23,21 @@ class SuperResolutionServicer(grpc_bt_grpc.SuperResolutionServicer):
         log.debug("SuperResolutionServicer created!")
         
         self.result = Image()
-        
-        self.input_dir = "./temp/input"
-        self.output_dir = "./temp/output"
+
+        self.root_path = "/root/super-resolution-service"
+        self.input_dir = self.root_path + "/service/temp/input"
+        self.output_dir = self.root_path + "/service/temp/output"
         service.initialize_diretories([self.input_dir, self.output_dir])
 
-        self.model_dir = "./models"
+        self.model_dir = self.root_path + "/service/models"
         self.prosr_model = "/proSR/proSR_x"
         self.prosrgan_model = "/proSRGAN/proSRGAN_x"
-        self.model_suffix = ".pth"
-        if not os.path.exists(self.model_dir):
-            log.error("Models folder (./models) not found. Please run download_models.sh.")
-            return
         self.scale_dict = {"proSR": [2, 4, 8],
                            "proSRGAN": [4, 8]}
+        self.model_suffix = ".pth"
+        if not os.path.exists(self.model_dir):
+            log.error("Models folder ({}) not found. Please run download_models.sh.".format(self.model_dir))
+            return
 
     def treat_inputs(self, base_command, request, arguments, created_images):
         """Treats gRPC inputs and assembles lua command. Specifically, checks if required field have been specified,
@@ -103,8 +104,7 @@ class SuperResolutionServicer(grpc_bt_grpc.SuperResolutionServicer):
         return command, file_index_str
 
     def increase_image_resolution(self, request, context):
-        """Python wrapper to AdaIN Style Transfer written in lua.
-        Receives gRPC request, treats the inputs and creates a thread that executes the lua command."""
+        """Increases the resolution of a given image (request.image) """
 
         # Store the names of the images to delete them afterwards
         created_images = []
@@ -115,9 +115,10 @@ class SuperResolutionServicer(grpc_bt_grpc.SuperResolutionServicer):
                      "scale": ("int", False, 2)}
 
         # Treat inputs and assemble command
-        base_command = "python3.6 test.py "
+        base_command = "python3.6 ./service/increase_resolution.py "
         try:
             command, file_index_str = self.treat_inputs(base_command, request, arguments, created_images)
+            print (command)
         except HTTPError as e:
             error_message = "Error downloading the input image \n" + e.read()
             log.error(error_message)
