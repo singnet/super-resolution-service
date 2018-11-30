@@ -60,22 +60,22 @@ def parse_args():
     parser.add_argument(
         '--cpu', help='Use CPU.', action='store_true')
 
-    args = parser.parse_args()
+    input_args = parser.parse_args()
 
-    args.input = get_filenames(args.input, IMG_EXTENSIONS)
-    args.target = get_filenames(args.target, IMG_EXTENSIONS)
+    input_args.input = get_filenames(input_args.input, IMG_EXTENSIONS)
+    input_args.target = get_filenames(input_args.target, IMG_EXTENSIONS)
 
-    return args
+    return input_args
 
 
 if __name__ == '__main__':
     # Parse command-line arguments
-    args = parse_args()
+    input_args = parse_args()
 
-    if args.cpu:
-        checkpoint = torch.load(args.checkpoint, map_location=lambda storage, loc: storage)
+    if input_args.cpu:
+        checkpoint = torch.load(input_args.checkpoint, map_location=lambda storage, loc: storage)
     else:
-        checkpoint = torch.load(args.checkpoint)
+        checkpoint = torch.load(input_args.checkpoint)
 
     cls_model = getattr(prosr.models, checkpoint['class_name'])
 
@@ -83,53 +83,53 @@ if __name__ == '__main__':
     model.load_state_dict(checkpoint['state_dict'])
 
     info('phase: {}'.format(Phase.TEST))
-    info('checkpoint: {}'.format(osp.basename(args.checkpoint)))
+    info('checkpoint: {}'.format(osp.basename(input_args.checkpoint)))
 
     params = checkpoint['params']
     pprint(params)
 
     model.eval()
 
-    if torch.cuda.is_available() and not args.cpu:
+    if torch.cuda.is_available() and not input_args.cpu:
         model = model.cuda()
 
     # TODO Change
     dataset = Dataset(
         Phase.TEST,
-        args.input,
-        args.target,
-        args.scale,
+        input_args.input,
+        input_args.target,
+        input_args.scale,
         input_size=None,
         mean=params['train']['dataset']['mean'],
         stddev=params['train']['dataset']['stddev'],
-        downscale=args.downscale)
+        downscale=input_args.downscale)
 
     data_loader = DataLoader(dataset, batch_size=1)
 
     mean = params['train']['dataset']['mean']
     stddev = params['train']['dataset']['stddev']
 
-    if not osp.isdir(args.output_dir):
-        os.makedirs(args.output_dir)
-    info('Saving images in: {}'.format(args.output_dir))
+    if not osp.isdir(input_args.output_dir):
+        os.makedirs(input_args.output_dir)
+    info('Saving images in: {}'.format(input_args.output_dir))
 
     with torch.no_grad():
-        if len(args.target):
+        if len(input_args.target):
             psnr_mean = 0
             ssim_mean = 0
         try:
             for iid, data in enumerate(data_loader):
                 tic = time.time()
                 input = data['input']
-                if not args.cpu:
+                if not input_args.cpu:
                     input = input.cuda()
-                output = model(input, args.scale).cpu() + data['bicubic']
+                output = model(input, input_args.scale).cpu() + data['bicubic']
                 sr_img = tensor2im(output, mean, stddev)
                 toc = time.time()
                 if 'target' in data:
                     hr_img = tensor2im(data['target'], mean, stddev)
                     psnr_val, ssim_val = eval_psnr_and_ssim(
-                        sr_img, hr_img, args.scale)
+                        sr_img, hr_img, input_args.scale)
                     print_evaluation(
                         osp.basename(data['input_fn'][0]), psnr_val, ssim_val,
                         iid + 1, len(dataset), toc - tic)
@@ -140,13 +140,13 @@ if __name__ == '__main__':
                         osp.basename(data['input_fn'][0]), np.nan, np.nan, iid + 1,
                         len(dataset), toc - tic)
 
-                fn = osp.join(args.output_dir, osp.basename(data['input_fn'][0]))
+                fn = osp.join(input_args.output_dir, osp.basename(data['input_fn'][0]))
                 io.imsave(fn, sr_img)
         except Exception as e:
             print(e)
             raise
 
-        if len(args.target):
+        if len(input_args.target):
             psnr_mean /= len(dataset)
             ssim_mean /= len(dataset)
             print_evaluation("average", psnr_mean, ssim_mean)

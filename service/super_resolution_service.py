@@ -117,6 +117,7 @@ class SuperResolutionServicer(grpc_bt_grpc.SuperResolutionServicer):
         base_command = "python3.6 ./service/increase_resolution.py "
         try:
             command, file_index_str = self.treat_inputs(base_command, request, arguments, created_images)
+            print (command)
         except HTTPError as e:
             error_message = "Error downloading the input image \n" + e.read()
             log.error(error_message)
