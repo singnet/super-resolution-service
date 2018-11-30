@@ -35,9 +35,10 @@ class SuperResolutionServicer(grpc_bt_grpc.SuperResolutionServicer):
                            "proSRGAN": [4, 8]}
         self.model_suffix = ".pth"
         if not os.path.exists(self.model_dir):
+            print(os.getcwd())
+            print("Models folder ({}) not found. Please run download_models.sh.".format(self.model_dir))
             log.error("Models folder ({}) not found. Please run download_models.sh.".format(self.model_dir))
             return
-
 
     def treat_inputs(self, base_command, request, arguments, created_images):
         """Treats gRPC inputs and assembles lua command. Specifically, checks if required field have been specified,
