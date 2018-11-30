@@ -2,7 +2,7 @@
 
 echo "Downloading models."
 
-MODELSDIR=./service/models
+MODELSDIR=./models
 
 mkdir -p $MODELSDIR/proSR
 mkdir -p $MODELSDIR/proSRGAN

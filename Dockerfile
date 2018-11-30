@@ -4,6 +4,7 @@ FROM pytorch/pytorch:0.4.1-cuda9-cudnn7-runtime
 
 ENV REPO_NAME=super-resolution-service
 ENV PROJECT_ROOT=/root/${REPO_NAME}
+ENV SERVICE_DIR=${PROJECT_ROOT}/service
 ENV SERVICE_NAME=super-resolution
 ENV PYTHONPATH=${PROJECT_ROOT}/service/lib
 ENV SNETD_HOST=http://54.203.198.53
@@ -21,8 +22,11 @@ RUN pip install --upgrade pip
 RUN cd /root/ &&\
     git clone https://github.com/ramongduraes/${REPO_NAME}.git &&\
     cd ${REPO_NAME} &&\
-    . ./download_models.sh &&\
     . ./install_snet.sh
+
+# Downloading models
+RUN cd ${SERVICE_DIR} &&\
+    . ./download_models.sh
 
 # Writing snetd.config.json
 RUN cd ${PROJECT_ROOT} &&\
