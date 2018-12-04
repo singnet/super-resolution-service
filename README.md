@@ -9,9 +9,9 @@
 
 > Repository for the super resolution service on the SingularityNET.
 
-[![Github Issues](http://githubbadges.herokuapp.com/singnet/super-resolution-service/issues.svg?style=flat-square)](https://github.com/singnet/super-resolution-service/issues/) 
-[![Pending Pull-Requests](http://githubbadges.herokuapp.com/singnet/super-resolution-service/pulls.svg?style=flat-square)](https://github.com/singnet/super-resolution-service/pulls) 
-[![GitHub license](https://img.shields.io/github/license/Naereen/StrapDown.js.svg)](https://github.com/Naereen/StrapDown.js/blob/master/LICENSE)
+[![Github Issues](https://img.shields.io/github/issues-raw/singnet/super-resolution-service.svg?style=popover)](https://github.com/singnet/super-resolution-service/issues)
+[![Pending Pull-Requests](https://img.shields.io/github/issues-pr-raw/singnet/super-resolution-service.svg?style=popover)](https://github.com/singnet/super-resolution-service/pulls)
+[![GitHub License](	https://img.shields.io/github/license/singnet/dnn-model-services.svg?style=popover)](https://github.com/singnet/super-resolution-service/blob/master/LICENSE)
 [![CircleCI](https://circleci.com/gh/singnet/super-resolution-service.svg?style=svg)](https://circleci.com/gh/singnet/super-resolution-service)
 
 This service uses convolutional neural networks to increase the resolution of an image by reconstructing rather than simply resizing it. It can upscale images by a factor of 2, 4 or 8.
