@@ -21,7 +21,7 @@ RUN pip install --upgrade pip
 # Installing SNET (snet-cli and snet-daemon + dependencies)
 RUN git clone https://github.com/ramongduraes/snet.git &&\
     cd snet/utils &&\
-    . install_snet.sh &&\
+    ./install_snet.sh &&\
     cd ../.. &&\
     rm -rf snet
 
