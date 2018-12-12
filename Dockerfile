@@ -19,9 +19,11 @@ RUN apt-get install -y git wget unzip
 RUN pip install --upgrade pip
 
 # Installing SNET (snet-cli and snet-daemon + dependencies)
-RUN wget -q https://github.com/ramongduraes/snet/blob/master/utils/install_snet.sh &&\
-    . ./install_snet.sh &&\
-    rm install_snet.sh
+RUN git clone https://github.com/ramongduraes/snet.git &&\
+    cd snet/utils &&\
+    ./install_snet.sh &&\
+    cd ../.. &&\
+    rm -rf snet
 
 # Cloning service repository and downloading models
 RUN cd /root/ &&\
