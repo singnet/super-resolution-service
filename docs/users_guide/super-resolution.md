@@ -38,10 +38,10 @@ Outputs:
 
 You can use this service at [SingularityNET DApp](http://alpha.singularitynet.io/) by clicking on `snet/super-resolution`.
 
-You can also call the service from SingularityNET CLI (`snet`). Assuming that you have an open channel (`id: 0`) to this service:
+You can also call the service from SingularityNET CLI (`snet`). Assuming that you have an open channel (`id: 269`) to this service:
 
 ```
-$ snet client call 0 0 54.203.198.53:7017 increase_image_resolution '{"input": "https://www.gettyimages.ie/gi-resources/images/Homepage/Hero/UK/CMS_Creative_164657191_Kingfisher.jpg", "model": "proSR", "scale": 2}'
+$ snet client call 269 0 54.203.198.53:7017 increase_image_resolution '{"input": "https://www.gettyimages.ie/gi-resources/images/Homepage/Hero/UK/CMS_Creative_164657191_Kingfisher.jpg", "model": "proSR", "scale": 2}'
 ```
 
 Go to [this tutorial](https://github.com/singnet/wiki/tree/master/tutorials/howToPublishService) to learn more about publishing, using and deleting a service.
