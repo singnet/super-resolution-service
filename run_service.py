@@ -1,91 +1,74 @@
-import pathlib
-import subprocess
-import time
-import os
 import sys
+import subprocess
 import logging
-import threading
+import pathlib
+import glob
+import argparse
 
 from service import registry
 
-logging.basicConfig(
-    level=10, format="%(asctime)s - [%(levelname)8s] - %(name)s - %(message)s"
-)
+logging.basicConfig(level=10, format="%(asctime)s - [%(levelname)8s] - %(name)s - %(message)s")
 log = logging.getLogger("run_super_resolution_service")
 
 
 def main():
-
+    parser = argparse.ArgumentParser(description="Run services")
+    parser.add_argument("--no-daemon", action="store_false", dest="run_daemon", help="do not start the daemon")
+    args = parser.parse_args()
     root_path = pathlib.Path(__file__).absolute().parent
 
     # All services modules go here
     service_modules = ["service.super_resolution_service"]
 
-    # Removing all previous snetd .db file
-    os.system("rm *.db")
-
     # Call for all the services listed in service_modules
-    start_all_services(root_path, service_modules)
+    all_p = start_all_services(root_path, service_modules, args.run_daemon)
 
-    # Infinite loop to serve the services
-    while True:
-        try:
-            time.sleep(1)
-        except Exception as e:
-            log.error(e)
-            exit(0)
-
-
-def start_all_services(cwd, service_modules):
-    """
-    Loop through all service_modules and start them.
-    For each one, an instance of Daemon 'snetd' is created.
-    snetd will start with configs from 'snet_SERVICENAME_config.json'
-    and will create a 'db_SERVICENAME.db' database file for each service.
-    """
+    # Wait for all subprocesses
     try:
-        for i, service_module in enumerate(service_modules):
-            server_name = service_module.split(".")[-1]
-            log.info("Launching {} on ports {}".format(str(registry[server_name]), service_module))
-
-            process_thread = threading.Thread(target=start_service, args=(cwd, service_module))
-
-            # Bind the thread with the main() to abort it when main() exits.
-            process_thread.daemon = True
-            process_thread.start()
-
+        for p in all_p:
+            p.wait()
     except Exception as e:
         log.error(e)
-        return False
-
-    return True
+        raise
 
 
-def start_service(cwd, service_module):
+def start_all_services(cwd, service_modules, run_daemon):
+    """
+    Loop through all service_modules and start them.
+    For each one, an instance of Daemon "snetd" is created.
+    snetd will start with configs from "snetd.config.json"
+    """
+    all_p = []
+    for i, service_module in enumerate(service_modules):
+        service_name = service_module.split(".")[-1]
+        log.info("Launching {} on port {}".format(str(registry[service_name]), service_module))
+        all_p += start_service(cwd, service_module, run_daemon)
+    return all_p
+
+
+def start_service(cwd, service_module, run_daemon):
     """
     Starts SNET Daemon ("snetd") and the python module of the service at the passed gRPC port.
     """
-    start_snetd(str(cwd))
-
+    all_p = []
+    if run_daemon:
+        for idx, config_file in enumerate(glob.glob("./snetd_configs/*.json")):
+            all_p.append(start_snetd(str(cwd), config_file))
     service_name = service_module.split(".")[-1]
     grpc_port = registry[service_name]["grpc"]
-    subprocess.Popen(
-        [sys.executable, "-m", service_module, "--grpc-port", str(grpc_port)],
-        cwd=str(cwd))
+    p = subprocess.Popen([sys.executable, "-m", service_module, "--grpc-port", str(grpc_port)], cwd=str(cwd))
+    all_p.append(p)
+    return all_p
 
 
-def start_snetd(cwd):
+def start_snetd(cwd, config_file=None):
     """
-    Starts the Daemon 'snetd'
+    Starts the Daemon "snetd":
     """
-    try:
-        cmd = ["snetd", "serve"]
-        subprocess.Popen(cmd, cwd=str(cwd))
-    except Exception as e:
-        log.error(e)
-        print(e)
-        exit(1)
-    return True
+    cmd = ["snetd", "serve"]
+    if config_file:
+        cmd = ["snetd", "serve", "--config", config_file]
+    return subprocess.Popen(cmd, cwd=str(cwd))
 
 
 if __name__ == "__main__":

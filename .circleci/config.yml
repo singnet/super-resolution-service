@@ -19,7 +19,8 @@ jobs:
             nvidia-docker run --runtime=nvidia \
               --name $DOCKER_CONTAINER_NAME_SUPER_RESOLUTION \
               --restart unless-stopped \
-              -p $SNETD_PORT:$SNETD_PORT \
+              -p $SNETD_KOVAN_PORT:$SNETD_KOVAN_PORT \
+              -p $SNETD_ROPSTEN_PORT:$SNETD_ROPSTEN_PORT \
               --shm-size=1gb \
               -di $DOCKER_IMAGE_NAME_SUPER_RESOLUTION sh -c "git pull;python3 $SERVICE_RUN_SCRIPT"
           EOF
