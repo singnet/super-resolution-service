@@ -15,13 +15,13 @@ jobs:
           ssh -o "StrictHostKeyChecking no" $SSH_USER@$SSH_HOST << EOF
             nvidia-docker stop $DOCKER_CONTAINER_NAME_SUPER_RESOLUTION || true && nvidia-docker rename $DOCKER_CONTAINER_NAME_SUPER_RESOLUTION ${DOCKER_CONTAINER_NAME_SUPER_RESOLUTION}_old || true
             nvidia-docker build \
-              --no-cache -t $DOCKER_IMAGE_NAME_SUPER_RESOLUTION https://raw.githubusercontent.com/singnet/super-resolution-service/master/Dockerfile
+              -t $DOCKER_IMAGE_NAME_SUPER_RESOLUTION https://raw.githubusercontent.com/singnet/super-resolution-service/master/Dockerfile
             nvidia-docker run --runtime=nvidia \
               --name $DOCKER_CONTAINER_NAME_SUPER_RESOLUTION \
               --restart unless-stopped \
               -p $SNETD_KOVAN_PORT:$SNETD_KOVAN_PORT \
               -p $SNETD_ROPSTEN_PORT:$SNETD_ROPSTEN_PORT \
-              -v /home/admin/singnet/etcd/super-resolution:/root/super-resolution-service/etcd
+              -v /home/admin/singnet/etcd/super-resolution:/root/super-resolution-service/etcd \
               --shm-size=1gb \
               -di $DOCKER_IMAGE_NAME_SUPER_RESOLUTION sh -c "git pull;python3 $SERVICE_RUN_SCRIPT"
           EOF
