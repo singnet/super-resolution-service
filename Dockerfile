@@ -14,7 +14,7 @@ RUN apt-get update
 RUN apt-get install -y git wget unzip
 RUN pip install --upgrade pip
 
-# Installing SNET (snet-cli and snet-daemon + dependencies)
+# Installing snet-daemon + dependencies
 RUN mkdir snet-daemon && \
     cd snet-daemon && \
     wget -q https://github.com/singnet/snet-daemon/releases/download/v0.1.6/snet-daemon-v0.1.6-linux-amd64.tar.gz && \
