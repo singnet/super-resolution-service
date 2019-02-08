@@ -1,55 +1,39 @@
 ## Create container using nvidia-docker and add shared memory size argument
-
 FROM pytorch/pytorch:0.4.1-cuda9-cudnn7-runtime
 
-ENV REPO_NAME=super-resolution-service
-ENV PROJECT_ROOT=/root/${REPO_NAME}
+ARG git_owner
+ARG git_repo
+ARG git_branch
+ENV SINGNET_REPOS=/opt/singnet
+ENV PROJECT_ROOT=${SINGNET_REPOS}/${git_repo}
 ENV SERVICE_DIR=${PROJECT_ROOT}/service
-ENV SERVICE_NAME=super-resolution
+
+# Super resolution service specific:
 ENV PYTHONPATH=${PROJECT_ROOT}/service/lib
-ENV SNETD_HOST=http://54.203.198.53
-ENV SNETD_PORT=7017
-ENV GRPC_HOST=http://localhost
-ENV GRPC_PORT=7016
-ENV SNETD_CONFIG=snetd.config.json
 
 # Updating and installing common dependencies
-RUN apt-get update
-RUN apt-get install -y git wget unzip
-RUN pip install --upgrade pip
+RUN apt-get update && \
+    apt-get install -y \
+    git \
+    wget \
+    unzip && \
+    pip install --upgrade pip
 
-# Installing SNET (snet-cli and snet-daemon + dependencies)
-RUN git clone https://github.com/ramongduraes/snet.git &&\
-    cd snet/utils &&\
-    ./install_snet.sh &&\
-    cd ../.. &&\
-    rm -rf snet
+# Installing snet-daemon + dependencies
+RUN mkdir snet-daemon && \
+    cd snet-daemon && \
+    wget -q https://github.com/singnet/snet-daemon/releases/download/v0.1.6/snet-daemon-v0.1.6-linux-amd64.tar.gz && \
+    tar -xvf snet-daemon-v0.1.6-linux-amd64.tar.gz  && \
+    mv ./snet-daemon-v0.1.6-linux-amd64/snetd /usr/bin/snetd && \
+    cd .. && \
+    rm -rf snet-daemon
 
 # Cloning service repository and downloading models
-RUN cd /root/ &&\
-    git clone https://github.com/ramongduraes/${REPO_NAME}.git &&\
+RUN mkdir -p ${SINGNET_REPOS} && \
+    cd ${SINGNET_REPOS} &&\
+    git clone https://github.com/${git_owner}/${git_repo}.git &&\
     cd ${SERVICE_DIR} &&\
     . ./download_models.sh
-
-# Writing snetd.config.json
-RUN cd ${PROJECT_ROOT} &&\
-    sh -c "echo '{ \"PRIVATE_KEY\": \"1000000000000000000000000000000000000000000000000000000000000000\", \
-                   \"DAEMON_LISTENING_PORT\": ${SNETD_PORT}, \
-                   \"ETHEREUM_JSON_RPC_ENDPOINT\": \"https://kovan.infura.io\", \
-                   \"PASSTHROUGH_ENABLED\": true, \
-                   \"PASSTHROUGH_ENDPOINT\": \"${GRPC_HOST}:${GRPC_PORT}\", \
-                   \"REGISTRY_ADDRESS_KEY\": \"0x2e4b2f2b72402b9b2d6a7851e37c856c329afe38\", \
-                   \"DAEMON_END_POINT\": \"${SNETD_HOST}:${SNETD_PORT}\", \
-                   \"IPFS_END_POINT\": \"http://ipfs.singularitynet.io:80\", \
-                   \"ORGANIZATION_NAME\": \"snet\", \
-                   \"SERVICE_NAME\": \"${SERVICE_NAME}\", \
-                   \"LOG\": { \
-                   \"LEVEL\": \"debug\", \
-                   \"OUTPUT\": { \
-                       \"TYPE\": \"stdout\" \
-                       } \
-                   } \
-                }'" > ${SNETD_CONFIG}
 
 # Installing projects's original dependencies and building protobuf messages
 RUN cd ${PROJECT_ROOT} &&\

@@ -24,7 +24,7 @@ class SuperResolutionServicer(grpc_bt_grpc.SuperResolutionServicer):
         
         self.result = Image()
 
-        self.root_path = "/root/super-resolution-service"
+        self.root_path = os.getcwd()
         self.input_dir = self.root_path + "/service/temp/input"
         self.output_dir = self.root_path + "/service/temp/output"
         service.initialize_diretories([self.input_dir, self.output_dir])

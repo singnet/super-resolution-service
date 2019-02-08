@@ -1,0 +1,43 @@
+version: 2
+jobs:
+  deploy-super-resolution:
+    docker:
+    - image: circleci/python:3.6.6-node
+    working_directory: ~/super-resolution-service
+    environment:
+      SERVICE_RUN_SCRIPT: run_service.py
+      SERVICE_TEST_SCRIPT: test_service.py
+      SNETD_PORT: 7017
+    steps:
+    - run:
+        name: Deploy Over SSH
+        command: |
+          ssh -o "StrictHostKeyChecking no" $SSH_USER@$SSH_HOST << EOF
+            nvidia-docker stop $DOCKER_CONTAINER_NAME_SUPER_RESOLUTION || true && nvidia-docker rename $DOCKER_CONTAINER_NAME_SUPER_RESOLUTION ${DOCKER_CONTAINER_NAME_SUPER_RESOLUTION}_old || true
+            nvidia-docker build \
+              -t $DOCKER_IMAGE_NAME_SUPER_RESOLUTION https://github.com/ramongduraes/super-resolution-service.git#master
+            nvidia-docker run --runtime=nvidia \
+              --name $DOCKER_CONTAINER_NAME_SUPER_RESOLUTION \
+              --restart unless-stopped \
+              -p $SNETD_KOVAN_PORT:$SNETD_KOVAN_PORT \
+              -p $SNETD_ROPSTEN_PORT:$SNETD_ROPSTEN_PORT \
+              --shm-size=1gb \
+              -di $DOCKER_IMAGE_NAME_SUPER_RESOLUTION sh -c "git pull;python3 $SERVICE_RUN_SCRIPT"
+          EOF
+    - run:
+        name: Remove Old Docker Container
+        command: |
+          ssh -o "StrictHostKeyChecking no" $SSH_USER@$SSH_HOST << EOF
+            nvidia-docker stop ${DOCKER_CONTAINER_NAME_SUPER_RESOLUTION}_old || true && nvidia-docker rm ${DOCKER_CONTAINER_NAME_SUPER_RESOLUTION}_old || true
+          EOF
+    - run:
+        name: Test local
+        command: |
+          ssh -o "StrictHostKeyChecking no" $SSH_USER@$SSH_HOST << EOF
+            nvidia-docker exec -i $DOCKER_CONTAINER_NAME_SUPER_RESOLUTION python3 $SERVICE_TEST_SCRIPT
+          EOF
+workflows:
+  version: 2
+  build-and-deploy:
+    jobs:
+      - deploy-super-resolution
