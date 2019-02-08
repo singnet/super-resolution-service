@@ -41,7 +41,7 @@ def start_all_services(cwd, service_modules, run_daemon):
     all_p = []
     for i, service_module in enumerate(service_modules):
         service_name = service_module.split(".")[-1]
-        log.info("Launching {} on port {}".format(str(service_module, registry[service_name])))
+        log.info("Launching {} on port {}".format(service_module, str(registry[service_name])))
         all_p += start_service(cwd, service_module, run_daemon)
     return all_p
 
