@@ -196,7 +196,7 @@ commands:
 
 version: 2.1
 jobs:
-  build-super-resolution-recon:
+  build-super-resolution:
     docker:
     - image: circleci/python:3.6.6-node
     working_directory: ~/singnet
@@ -211,7 +211,7 @@ jobs:
           docker_image_name: super_resolution
           docker_container_name: SUPER_RESOLUTION
 
-  deploy-super-resolution-recon:
+  deploy-super-resolution:
     docker:
     - image: circleci/python:3.6.6-node
     working_directory: ~/singnet
