@@ -8,23 +8,6 @@
   "organization_id": "snet",
   "service_id": "super-resolution",
 
-  "payment_channel_storage_server": {
-    "id": "storage-kovan",
-    "host": "127.0.0.1",
-    "client_port": 2379,
-    "peer_port": 2380,
-    "token": "unique-token",
-    "cluster": "storage-kovan=http://127.0.0.1:2380",
-    "data_dir": "etcd/storage-data-dir-kovan.etcd",
-    "enabled": true
-  },
-
-  "payment_channel_storage_client": {
-    "connection_timeout": "5s",
-    "request_timeout": "3s",
-    "endpoints": ["http://127.0.0.1:2379"]
-  },
-
   "log": {
     "level": "debug",
     "output": {
