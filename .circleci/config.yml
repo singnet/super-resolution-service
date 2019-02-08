@@ -51,7 +51,7 @@ commands:
                 --build-arg git_owner=${CIRCLE_PROJECT_USERNAME} \
                 --build-arg git_repo=${CIRCLE_PROJECT_REPONAME} \
                 --build-arg git_branch=${CIRCLE_BRANCH} \
-                -t ${DOCKER_IMAGE_NAME}:${CIRCLE_PROJECT_USERNAME} https://raw.githubusercontent.com/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}/${CIRCLE_BRANCH}/${SERVICE_FOLDER}/Dockerfile
+                -t ${DOCKER_IMAGE_NAME}:${CIRCLE_PROJECT_USERNAME} https://raw.githubusercontent.com/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}/${CIRCLE_BRANCH}/Dockerfile
               docker run \
                 $([ "${DOCKER_NVIDIA}" = "true" ] && echo "--runtime=nvidia" || echo "") \
                 --shm-size=2gb \
@@ -146,7 +146,7 @@ commands:
                     --build-arg git_owner=${CIRCLE_PROJECT_USERNAME} \
                     --build-arg git_repo=${CIRCLE_PROJECT_REPONAME} \
                     --build-arg git_branch=${CIRCLE_BRANCH} \
-                    -t ${DOCKER_IMAGE_NAME}:${CIRCLE_PROJECT_USERNAME} https://raw.githubusercontent.com/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}/${CIRCLE_BRANCH}/${SERVICE_FOLDER}/Dockerfile
+                    -t ${DOCKER_IMAGE_NAME}:${CIRCLE_PROJECT_USERNAME} https://raw.githubusercontent.com/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}/${CIRCLE_BRANCH}/Dockerfile
                     docker run \
                     $([ "${DOCKER_NVIDIA}" = "true" ] && echo "--runtime=nvidia" || echo "") \
                     --shm-size=2gb \
@@ -202,7 +202,6 @@ jobs:
     working_directory: ~/singnet
     environment:
       SERVICE_NAME: super-resolution
-      SERVICE_FOLDER: super-resolution-service/
       SERVICE_RUN_COMMAND: bash -c "git pull;python3 run_service.py"
       SERVICE_TEST_COMMAND: bash -c "python3 test_service.py auto"
     steps:
@@ -217,7 +216,6 @@ jobs:
     working_directory: ~/singnet
     environment:
       SERVICE_NAME: super-resolution
-      SERVICE_FOLDER: super-resolution-service/
       SERVICE_RUN_COMMAND: bash -c "git pull;python3 run_service.py"
       SERVICE_TEST_COMMAND: bash -c "python3 test_service.py auto"
       SNETD_PORT_KOVAN: 7017
@@ -228,7 +226,7 @@ jobs:
           docker_image_name: super_resolution
           docker_container_name: SUPER_RESOLUTION
           docker_etcd_host_folder: singnet/etcd/${SERVICE_NAME}/
-          docker_etcd_container_folder: opt/singnet/${CIRCLE_PROJECT_REPONAME}/${SERVICE_FOLDER}/etcd/
+          docker_etcd_container_folder: opt/singnet/${CIRCLE_PROJECT_REPONAME}/etcd/
 
 workflows:
   version: 2.1
