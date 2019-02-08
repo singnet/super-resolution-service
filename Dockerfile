@@ -1,18 +1,23 @@
 ## Create container using nvidia-docker and add shared memory size argument
-
 FROM pytorch/pytorch:0.4.1-cuda9-cudnn7-runtime
 
-ENV GITHUB_ACCOUNT=ramongduraes
-ENV REPO_NAME=super-resolution-service
-ENV PROJECT_ROOT=/root/${REPO_NAME}
+ARG git_owner
+ARG git_repo
+ARG git_branch
+ENV SINGNET_REPOS=/opt/singnet
+ENV PROJECT_ROOT=${SINGNET_REPOS}/${git_repo}
 ENV SERVICE_DIR=${PROJECT_ROOT}/service
-ENV SERVICE_NAME=super-resolution
+
+# Super resolution service specific:
 ENV PYTHONPATH=${PROJECT_ROOT}/service/lib
 
 # Updating and installing common dependencies
-RUN apt-get update
-RUN apt-get install -y git wget unzip
-RUN pip install --upgrade pip
+RUN apt-get update && \
+    apt-get install -y \
+    git \
+    wget \
+    unzip && \
+    pip install --upgrade pip
 
 # Installing snet-daemon + dependencies
 RUN mkdir snet-daemon && \
@@ -24,8 +29,9 @@ RUN mkdir snet-daemon && \
     rm -rf snet-daemon
 
 # Cloning service repository and downloading models
-RUN cd /root/ &&\
-    git clone https://github.com/${GITHUB_ACCOUNT}/${REPO_NAME}.git &&\
+RUN mkdir -p ${SINGNET_REPOS} && \
+    cd ${SINGNET_REPOS} &&\
+    git clone https://github.com/${git_owner}/${git_repo}.git &&\
     cd ${SERVICE_DIR} &&\
     . ./download_models.sh
 
