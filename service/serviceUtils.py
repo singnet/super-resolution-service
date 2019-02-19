@@ -56,15 +56,12 @@ def jpg_to_base64(jpgimg, open_file=False):
 def base64_to_jpg(base64img, output_file_path=""):
     """Decodes from base64 to jpg. If output_file_path is defined, saves the decoded image."""
 
-    decoded_jpg = base64.b64decode(base64img)
-    jpg_bytes = io.BytesIO(decoded_jpg)
-    image = Image.open(jpg_bytes)
+    # Get base64 image type
+    decoded_img = base64.b64decode(base64img)
     if output_file_path != "":
-        # If image is PNG, convert to JPG
-        if image.format == 'PNG':
-            image = image.convert('RGB')
-        image.save(output_file_path, format='JPEG')
-    return decoded_jpg
+        with open(output_file_path, "wb") as f:
+            f.write(decoded_img)
+    return decoded_img
 
 
 def clear_path(path):
@@ -108,7 +105,7 @@ def get_file_index(save_dir, prefix):
     04 as the index of the next file to be saved. This number resets to 0 at 99."""
 
     file_index = 0
-    regex = prefix + '([0-9]{2})\.([a-z]{3})'
+    regex = prefix + r'([0-9]{2})\.([a-z]{3})'
     files = [f for f in os.listdir(save_dir) if os.path.isfile(os.path.join(save_dir, f))]
     if files:
         for file_name in files:
