@@ -171,8 +171,10 @@ def treat_image_input(input_argument, save_dir, image_type):
 
     # If it's not a local file, try to decode from base64 to jpg and save
     else:
-        print("Treating image input as base64. File name: \n {}".format(save_path))
+        # TODO : check if always decoding base64 to JPG works.
         log.debug("Treating image input as base64.")
+        file_ext = '.jpg'
+        save_path += file_ext
         base64_to_jpg(input_argument, save_path)
 
     return save_path, file_index_str
