@@ -160,7 +160,6 @@ class SuperResolutionServicer(grpc_bt_grpc.SuperResolutionServicer):
         self.result.data = service.jpg_to_base64(output_image_path, open_file=True).decode("utf-8")
         log.debug("Output image generated. Service successfully completed.")
 
-        # TODO: Clear temp images even if an error occurs
         for image in created_images:
             service.clear_file(image)
 
