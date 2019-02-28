@@ -154,7 +154,7 @@ if __name__ == '__main__':
                         len(dataset), toc - tic)
 
                 fn = osp.join(input_args.output_dir, osp.basename(data['input_fn'][0]))
-                log.debug("Saving file under: {}";.format(fn))
+                log.debug("Saving file under: {}".format(fn))
                 io.imsave(fn, sr_img)
         except Exception as e:
             log.error(e)
