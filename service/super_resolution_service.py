@@ -118,7 +118,6 @@ class SuperResolutionServicer(grpc_bt_grpc.SuperResolutionServicer):
         base_command = "python3.6 ./service/increase_resolution.py "
         try:
             command, file_index_str = self.treat_inputs(base_command, request, arguments, created_images)
-            print (command)
         except HTTPError as e:
             error_message = "Error downloading the input image \n" + e.read()
             log.error(error_message)
@@ -136,6 +135,8 @@ class SuperResolutionServicer(grpc_bt_grpc.SuperResolutionServicer):
         process = subprocess.Popen(command.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         try:
             stdout, stderr = process.communicate()
+            log.debug(stdout)
+            log.error(stderr)
         except Exception as e:
             self.result.data = e
             log.error(e)
@@ -151,7 +152,7 @@ class SuperResolutionServicer(grpc_bt_grpc.SuperResolutionServicer):
 
         # Get output file path
         input_filename = os.path.split(created_images[0])[1]
-        print("Input file name: {}".format(input_filename))
+        log.debug("Input file name: {}".format(input_filename))
         output_image_path = self.output_dir + '/' + input_filename
         created_images.append(output_image_path)
 
