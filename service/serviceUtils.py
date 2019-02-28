@@ -61,6 +61,12 @@ def jpg_to_base64(jpgimg, open_file=False):
     return base64.b64encode(imgbytes)
 
 
+def png_to_base64(pngimg):
+    """Encodes a png file into base64. Opens the file first!"""
+    with open(pngimg, "rb") as image_file:
+        return base64.b64encode(image_file.read())
+
+
 def base64_to_jpg(base64img, output_file_path=""):
     """Decodes from base64 to jpg. If output_file_path is defined, saves the decoded image."""
 

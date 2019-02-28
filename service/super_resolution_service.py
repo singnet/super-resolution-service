@@ -161,7 +161,12 @@ class SuperResolutionServicer(grpc_bt_grpc.SuperResolutionServicer):
 
         # Prepare gRPC output message
         self.result = Image()
-        self.result.data = service.serviceUtils.jpg_to_base64(output_image_path, open_file=True).decode("utf-8")
+        if input_filename.split('.')[1] == 'png':
+            log.debug("Encoding from PNG.")
+            self.result.data = service.serviceUtils.png_to_base64(output_image_path).decode("utf-8")
+        else:
+            log.debug("Encoding from JPG.")
+            self.result.data = service.serviceUtils.jpg_to_base64(output_image_path, open_file=True).decode("utf-8")
         log.debug("Output image generated. Service successfully completed.")
 
         for image in created_images:
