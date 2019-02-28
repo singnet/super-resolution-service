@@ -142,13 +142,14 @@ class SuperResolutionServicer(grpc_bt_grpc.SuperResolutionServicer):
             for image in created_images:
                 service.clear_file(image)
             return self.result
-        if stderr:
-            log.debug("Returning on stderr!")
-            log.error(stderr)
-            self.result.data = stderr
-            for image in created_images:
-                service.clear_file(image)
-            return self.result
+
+        # if stderr:
+        #     log.debug("Returning on stderr!")
+        #     log.error(stderr)
+        #     self.result.data = stderr
+        #     for image in created_images:
+        #         service.clear_file(image)
+        #     return self.result
 
         # Get output file path
         log.debug("Returning on service complete!")
