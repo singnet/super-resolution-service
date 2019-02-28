@@ -168,8 +168,8 @@ def treat_image_input(input_argument, save_dir, image_type):
         log.debug("Downloading image under the path: {}".format(save_path))
         try:
             download(input_argument, save_path)
-            if file_ext == ".png":
-                save_path = png_to_jpg(save_path, True)
+            # if file_ext == ".png":
+            #     save_path = png_to_jpg(save_path, True)
             Image.open(save_path)
         except Exception:
             clear_file(save_path)
