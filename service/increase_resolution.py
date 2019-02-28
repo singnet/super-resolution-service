@@ -15,6 +15,12 @@ import prosr
 import skimage.io as io
 import torch
 import sys
+import logging
+
+logging.basicConfig(
+    level=10, format="%(asctime)s - [%(levelname)8s] - %(name)s - %(message)s"
+)
+log = logging.getLogger("super_resolution_service")
 
 # BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 # sys.path.append(osp.join(BASE_DIR, 'lib'))
@@ -65,6 +71,8 @@ def parse_args():
     input_args.input = get_filenames(input_args.input, IMG_EXTENSIONS)
     input_args.target = get_filenames(input_args.target, IMG_EXTENSIONS)
 
+    log.debug("Parsed inputs")
+
     return input_args
 
 
@@ -73,8 +81,10 @@ if __name__ == '__main__':
     input_args = parse_args()
 
     if input_args.cpu:
+        log.debug("Using CPU")
         checkpoint = torch.load(input_args.checkpoint, map_location=lambda storage, loc: storage)
     else:
+        log.debug("Using GPU!")
         checkpoint = torch.load(input_args.checkpoint)
 
     cls_model = getattr(prosr.models, checkpoint['class_name'])
@@ -91,6 +101,7 @@ if __name__ == '__main__':
     model.eval()
 
     if torch.cuda.is_available() and not input_args.cpu:
+        log.debug("Using CUDA!")
         model = model.cuda()
 
     # TODO Change
@@ -119,6 +130,7 @@ if __name__ == '__main__':
             ssim_mean = 0
         try:
             for iid, data in enumerate(data_loader):
+                log.debug("Performing SR! IID: {} , DATA : {}".format(iid, data))
                 tic = time.time()
                 input = data['input']
                 if not input_args.cpu:
@@ -126,6 +138,7 @@ if __name__ == '__main__':
                 output = model(input, input_args.scale).cpu() + data['bicubic']
                 sr_img = tensor2im(output, mean, stddev)
                 toc = time.time()
+                log.debug("Applied image through model!")
                 if 'target' in data:
                     hr_img = tensor2im(data['target'], mean, stddev)
                     psnr_val, ssim_val = eval_psnr_and_ssim(
@@ -141,9 +154,10 @@ if __name__ == '__main__':
                         len(dataset), toc - tic)
 
                 fn = osp.join(input_args.output_dir, osp.basename(data['input_fn'][0]))
+                log.debug("Saving file under: {}".format(fn))
                 io.imsave(fn, sr_img)
         except Exception as e:
-            print(e)
+            log.error(e)
             raise
 
         if len(input_args.target):

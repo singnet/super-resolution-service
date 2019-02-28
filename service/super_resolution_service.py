@@ -1,6 +1,6 @@
 import logging
 import grpc
-import service
+import service.serviceUtils
 import service.service_spec.super_resolution_pb2_grpc as grpc_bt_grpc
 from service.service_spec.super_resolution_pb2 import Image
 import subprocess
@@ -67,7 +67,7 @@ class SuperResolutionServicer(grpc_bt_grpc.SuperResolutionServicer):
                 assert(request.input != ""), "Input image field should not be empty."
                 try:
                     image_path, file_index_str = \
-                        service.treat_image_input(arg_value, self.input_dir, "{}".format(field))
+                        service.serviceUtils.treat_image_input(arg_value, self.input_dir, "{}".format(field))
                     print("Image path: {}".format(image_path))
                     created_images.append(image_path)
                     command += "--{} {} ".format(field, image_path)
@@ -118,7 +118,6 @@ class SuperResolutionServicer(grpc_bt_grpc.SuperResolutionServicer):
         base_command = "python3.6 ./service/increase_resolution.py "
         try:
             command, file_index_str = self.treat_inputs(base_command, request, arguments, created_images)
-            print (command)
         except HTTPError as e:
             error_message = "Error downloading the input image \n" + e.read()
             log.error(error_message)
@@ -138,30 +137,40 @@ class SuperResolutionServicer(grpc_bt_grpc.SuperResolutionServicer):
             stdout, stderr = process.communicate()
         except Exception as e:
             self.result.data = e
+            log.debug("Returning on exception!")
             log.error(e)
             for image in created_images:
                 service.clear_file(image)
             return self.result
-        if stderr:
-            log.error(stderr)
-            self.result.data = stderr
-            for image in created_images:
-                service.clear_file(image)
-            return self.result
+
+        # if stderr:
+        #     log.debug("Returning on stderr!")
+        #     log.error(stderr)
+        #     self.result.data = stderr
+        #     for image in created_images:
+        #         service.clear_file(image)
+        #     return self.result
 
         # Get output file path
+        log.debug("Returning on service complete!")
         input_filename = os.path.split(created_images[0])[1]
-        print("Input file name: {}".format(input_filename))
+        log.debug("Input file name: {}".format(input_filename))
         output_image_path = self.output_dir + '/' + input_filename
+        log.debug("Output image path: {}".format(output_image_path))
         created_images.append(output_image_path)
 
         # Prepare gRPC output message
         self.result = Image()
-        self.result.data = service.jpg_to_base64(output_image_path, open_file=True).decode("utf-8")
+        if input_filename.split('.')[1] == 'png':
+            log.debug("Encoding from PNG.")
+            self.result.data = service.serviceUtils.png_to_base64(output_image_path).decode("utf-8")
+        else:
+            log.debug("Encoding from JPG.")
+            self.result.data = service.serviceUtils.jpg_to_base64(output_image_path, open_file=True).decode("utf-8")
         log.debug("Output image generated. Service successfully completed.")
 
         for image in created_images:
-            service.clear_file(image)
+            service.serviceUtils.clear_file(image)
 
         return self.result
 
@@ -187,4 +196,4 @@ if __name__ == '__main__':
     """Runs the gRPC server to communicate with the Snet Daemon."""
     parser = service.common_parser(__file__)
     args = parser.parse_args(sys.argv[1:])
-    service.main_loop(serve, args)
+    service.serviceUtils.main_loop(serve, args)
