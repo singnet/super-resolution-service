@@ -132,17 +132,17 @@ def get_file_index(save_dir, prefix):
     return file_index_str
 
 
-def png_to_jpg(png_path, delete_original=True):
-    """Opens a png image, creates a jpg image of the same name and optionally deletes the original png image.
-    Returns: path to the jpg image."""
-    with Image.open(png_path) as png_img:
-        jpg_img = png_img.convert('RGB')
-        stripped_file_name = os.path.splitext(png_path)[0]
-        jpg_path = stripped_file_name + ".jpg"
-        jpg_img.save(jpg_path)
-    if delete_original:
-        clear_file(png_path)
-    return jpg_path
+# def png_to_jpg(png_path, delete_original=True):
+#     """Opens a png image, creates a jpg image of the same name and optionally deletes the original png image.
+#     Returns: path to the jpg image."""
+#     with Image.open(png_path) as png_img:
+#         jpg_img = png_img.convert('RGB')
+#         stripped_file_name = os.path.splitext(png_path)[0]
+#         jpg_path = stripped_file_name + ".jpg"
+#         jpg_img.save(jpg_path)
+#     if delete_original:
+#         clear_file(png_path)
+#     return jpg_path
 
 
 def treat_image_input(input_argument, save_dir, image_type):
@@ -168,8 +168,8 @@ def treat_image_input(input_argument, save_dir, image_type):
         log.debug("Downloading image under the path: {}".format(save_path))
         try:
             download(input_argument, save_path)
-            if file_ext == ".png":
-                save_path = png_to_jpg(save_path, True)
+            # if file_ext == ".png":
+            #     save_path = png_to_jpg(save_path, True)
             Image.open(save_path)
         except Exception:
             clear_file(save_path)
