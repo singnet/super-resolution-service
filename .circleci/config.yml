@@ -205,7 +205,7 @@ jobs:
     environment:
       SERVICE_NAME: super-resolution
       SERVICE_RUN_COMMAND: bash -c "git pull;python3 run_service.py"
-      SERVICE_TEST_COMMAND: bash -c "python3 test_service.py auto"
+      SERVICE_TEST_COMMAND: bash -c "python3 test_service.py"
     steps:
       - build_command:
           docker_nvidia: true
