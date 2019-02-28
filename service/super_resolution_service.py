@@ -188,6 +188,6 @@ def serve(max_workers=5, port=7777):
 
 if __name__ == '__main__':
     """Runs the gRPC server to communicate with the Snet Daemon."""
-    parser = service.serviceUtils.common_parser(__file__)
+    parser = service.common_parser(__file__)
     args = parser.parse_args(sys.argv[1:])
     service.serviceUtils.main_loop(serve, args)
