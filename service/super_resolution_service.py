@@ -134,17 +134,11 @@ class SuperResolutionServicer(grpc_bt_grpc.SuperResolutionServicer):
         # Call super resolution. If it fails, log error, delete files and exit.
         process = subprocess.Popen(command.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         try:
-            stdout, stderr = process.communicate()
+            process.communicate()
         except Exception as e:
             self.result.data = e
-            log.error("Returning on exception! Exception: {}".format(e))
-            for image in created_images:
-                service.clear_file(image)
-            return self.result
-        if stderr:
-            log.debug("Returning on error: {}".format(stderr))
-            log.error(stderr)
-            self.result.data = stderr
+            log.debug("Returning on exception!")
+            log.error(e)
             for image in created_images:
                 service.clear_file(image)
             return self.result
