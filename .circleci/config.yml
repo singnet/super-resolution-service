@@ -48,7 +48,6 @@ commands:
             ssh -o "StrictHostKeyChecking no" ${SSH_USER}@${SSH_HOST} \<< EOF
               docker stop ${PROD_TAG}${DOCKER_CONTAINER_NAME} || true && docker rename ${PROD_TAG}${DOCKER_CONTAINER_NAME} ${PROD_TAG}${DOCKER_CONTAINER_NAME}_old || true
               docker build \
-                --no-cache \
                 --build-arg git_owner=${CIRCLE_PROJECT_USERNAME} \
                 --build-arg git_repo=${CIRCLE_PROJECT_REPONAME} \
                 --build-arg git_branch=${CIRCLE_BRANCH} \
@@ -109,16 +108,6 @@ commands:
         type: string
         default: ""
     steps:
-      - run:
-          name: Removing old Docker Container (Previous Builds)
-          command: |
-            export DOCKER_IMAGE_NAME=<< parameters.docker_image_name >>
-            export DOCKER_CONTAINER_NAME=<< parameters.docker_container_name >>
-            export PROD_TAG=$([ "${CIRCLE_PROJECT_USERNAME}" = "singnet" ] && echo "PROD_" || echo "")
-
-            ssh -o "StrictHostKeyChecking no" ${SSH_USER}@${SSH_HOST} \<< EOF
-              docker stop ${PROD_TAG}${DOCKER_CONTAINER_NAME}_old || true && docker rm ${PROD_TAG}${DOCKER_CONTAINER_NAME}_old || true
-            EOF
       - run:
           name: Deploying
           command: |

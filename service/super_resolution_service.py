@@ -167,9 +167,8 @@ class SuperResolutionServicer(grpc_bt_grpc.SuperResolutionServicer):
             self.result.data = service.jpg_to_base64(output_image_path, open_file=True).decode("utf-8")
         log.debug("Output image generated. Service successfully completed.")
 
-        # TODO: Clear temp images even if an error occurs
         for image in created_images:
-            service.clear_file(image)
+            service.serviceUtils.clear_file(image)
 
         return self.result
 
@@ -188,6 +187,7 @@ def serve(max_workers=5, port=7777):
     grpc_bt_grpc.add_SuperResolutionServicer_to_server(
         SuperResolutionServicer(), server)
     server.add_insecure_port('[::]:{}'.format(port))
+    log.debug("Returning server!")
     return server
 
 
@@ -195,4 +195,4 @@ if __name__ == '__main__':
     """Runs the gRPC server to communicate with the Snet Daemon."""
     parser = service.common_parser(__file__)
     args = parser.parse_args(sys.argv[1:])
-    service.main_loop(serve, args)
+    service.serviceUtils.main_loop(serve, args)

@@ -130,7 +130,7 @@ if __name__ == '__main__':
             ssim_mean = 0
         try:
             for iid, data in enumerate(data_loader):
-                log.debug("Performing SR! IID: {} , DATA : {}".format(iid, data))
+                log.debug("Performing SR!")
                 tic = time.time()
                 input = data['input']
                 if not input_args.cpu:
