@@ -27,7 +27,7 @@ def main():
 
     # Call for all the services listed in service_modules
     all_p = start_all_services(root_path, service_modules, args.run_daemon, args.run_ssl)
-
+    log.debug("List of processes: {}". format(all_p))
     # Continuously checking all subprocesses
     try:
         while True:
