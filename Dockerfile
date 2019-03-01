@@ -31,7 +31,7 @@ RUN mkdir snet-daemon && \
 # Cloning service repository and downloading models
 RUN mkdir -p ${SINGNET_REPOS} && \
     cd ${SINGNET_REPOS} &&\
-    git clone https://github.com/${git_owner}/${git_repo}.git &&\
+    git clone --single-branch ${git_branch} https://github.com/${git_owner}/${git_repo}.git &&\
     cd ${SERVICE_DIR} &&\
     . ./download_models.sh
 
