@@ -24,8 +24,6 @@
         "endpoints": ["http://127.0.0.1:2379"],
         "request_timeout": "3s"
     },
-    "ssl_cert": "/opt/singnet/.certs/fullchain.pem",
-    "ssl_key": "/opt/singnet/.certs/privkey.pem",
 
     "log": {
         "level": "debug",

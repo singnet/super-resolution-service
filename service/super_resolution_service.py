@@ -1,6 +1,6 @@
 import logging
 import grpc
-import service.serviceUtils
+import service
 import service.service_spec.super_resolution_pb2_grpc as grpc_bt_grpc
 from service.service_spec.super_resolution_pb2 import Image
 import subprocess
@@ -67,7 +67,7 @@ class SuperResolutionServicer(grpc_bt_grpc.SuperResolutionServicer):
                 assert(request.input != ""), "Input image field should not be empty."
                 try:
                     image_path, file_index_str = \
-                        service.serviceUtils.treat_image_input(arg_value, self.input_dir, "{}".format(field))
+                        service.treat_image_input(arg_value, self.input_dir, "{}".format(field))
                     print("Image path: {}".format(image_path))
                     created_images.append(image_path)
                     command += "--{} {} ".format(field, image_path)
@@ -134,7 +134,7 @@ class SuperResolutionServicer(grpc_bt_grpc.SuperResolutionServicer):
         # Call super resolution. If it fails, log error, delete files and exit.
         process = subprocess.Popen(command.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         try:
-            stdout, stderr = process.communicate()
+            process.communicate()
         except Exception as e:
             self.result.data = e
             log.debug("Returning on exception!")
@@ -142,14 +142,6 @@ class SuperResolutionServicer(grpc_bt_grpc.SuperResolutionServicer):
             for image in created_images:
                 service.clear_file(image)
             return self.result
-
-        # if stderr:
-        #     log.debug("Returning on stderr!")
-        #     log.error(stderr)
-        #     self.result.data = stderr
-        #     for image in created_images:
-        #         service.clear_file(image)
-        #     return self.result
 
         # Get output file path
         log.debug("Returning on service complete!")
@@ -163,10 +155,10 @@ class SuperResolutionServicer(grpc_bt_grpc.SuperResolutionServicer):
         self.result = Image()
         if input_filename.split('.')[1] == 'png':
             log.debug("Encoding from PNG.")
-            self.result.data = service.serviceUtils.png_to_base64(output_image_path).decode("utf-8")
+            self.result.data = service.png_to_base64(output_image_path).decode("utf-8")
         else:
             log.debug("Encoding from JPG.")
-            self.result.data = service.serviceUtils.jpg_to_base64(output_image_path, open_file=True).decode("utf-8")
+            self.result.data = service.jpg_to_base64(output_image_path, open_file=True).decode("utf-8")
         log.debug("Output image generated. Service successfully completed.")
 
         for image in created_images:
@@ -189,6 +181,7 @@ def serve(max_workers=5, port=7777):
     grpc_bt_grpc.add_SuperResolutionServicer_to_server(
         SuperResolutionServicer(), server)
     server.add_insecure_port('[::]:{}'.format(port))
+    log.debug("Returning server!")
     return server
 
 

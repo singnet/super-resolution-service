@@ -8,11 +8,12 @@ import pathlib
 import glob
 import json
 import argparse
-
+import service
 from service import registry
 
 logging.basicConfig(level=10, format="%(asctime)s - [%(levelname)8s] - %(name)s - %(message)s")
 log = logging.getLogger("run_super_resolution_service")
+
 
 
 def main():
