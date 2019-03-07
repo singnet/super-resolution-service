@@ -17,7 +17,7 @@ if __name__ == "__main__":
         # setting parameters
         grpc_method = "increase_image_resolution"
         input_image = \
-            "http://d3sdoylwcs36el.cloudfront.net/VEN-virtual-enterprise-network-business-opportunities-small-fish_id799929_size485.jpg"
+            "https://www.gettyimages.ie/gi-resources/images/Homepage/Hero/UK/CMS_Creative_164657191_Kingfisher.jpg"
         model = "proSR"
         scale = 2
 
