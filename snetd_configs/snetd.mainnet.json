@@ -21,8 +21,8 @@
 
     "payment_channel_storage_client": {
         "connection_timeout": "5s",
-        "endpoints": ["http://127.0.0.1:2379"],
-        "request_timeout": "3s"
+        "request_timeout": "3s",
+        "endpoints": ["http://127.0.0.1:2379"]
     },
 
     "log": {

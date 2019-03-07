@@ -41,6 +41,7 @@ if __name__ == "__main__":
             print("Service completed!")
         else:
             print("Service failed! No data received.")
+            exit(1)
 
     except Exception as e:
         print(e)
