@@ -96,7 +96,7 @@ class SuperResolutionServicer(grpc_bt_grpc.SuperResolutionServicer):
                         log.error(e)
                         raise
                 if scale in self.scale_dict[request.model]:
-                    model_path += scale
+                    model_path += str(scale)
                 else:
                     log.error('Scale invalid. Should be one of {}.'.format(self.scale_dict[request.model]))
             else:
@@ -107,7 +107,7 @@ class SuperResolutionServicer(grpc_bt_grpc.SuperResolutionServicer):
                 log.error("Empty image_path (filename). Something went wrong when treating input.")
             model_path += self.model_suffix
 
-            log.debug("Successfully treated input.")
+        log.debug("Successfully treated input.")
 
         return image_path, model_path, file_index_str
 
