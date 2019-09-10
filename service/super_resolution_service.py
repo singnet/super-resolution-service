@@ -3,11 +3,14 @@ import grpc
 import service
 import service.service_spec.super_resolution_pb2_grpc as grpc_bt_grpc
 from service.service_spec.super_resolution_pb2 import Image
-import subprocess
 import concurrent.futures as futures
 import sys
 import os
 from urllib.error import HTTPError
+import cv2
+import numpy as np
+import torch
+import service.RRDBNet_arch as arch
 
 logging.basicConfig(
     level=10, format="%(asctime)s - [%(levelname)8s] - %(name)s - %(message)s"
@@ -24,29 +27,29 @@ class SuperResolutionServicer(grpc_bt_grpc.SuperResolutionServicer):
         
         self.result = Image()
 
+        self.device = torch.device('cuda')  # To run on GPU
+
         self.root_path = os.getcwd()
         self.input_dir = self.root_path + "/service/temp/input"
         self.output_dir = self.root_path + "/service/temp/output"
         service.initialize_diretories([self.input_dir, self.output_dir])
 
         self.model_dir = self.root_path + "/service/models"
-        self.prosr_model = "/proSR/proSR_x"
-        self.prosrgan_model = "/proSRGAN/proSRGAN_x"
-        self.scale_dict = {"proSR": [2, 4, 8],
-                           "proSRGAN": [4, 8]}
+        self.esrgan_model = "/RRDB_ESRGAN_x"
+        self.scale_dict = {"ESRGAN": [4]}
         self.model_suffix = ".pth"
         if not os.path.exists(self.model_dir):
-            log.error("Models folder ({}) not found. Please run download_models.sh.".format(self.model_dir))
+            log.error("Models folder ({}) not found.".format(self.model_dir))
             return
 
-    def treat_inputs(self, base_command, request, arguments, created_images):
+    def treat_inputs(self, request, arguments, created_images):
         """Treats gRPC inputs and assembles lua command. Specifically, checks if required field have been specified,
         if the values and types are correct and, for each input/input_type adds the argument to the lua command."""
 
         model_path = self.model_dir
         # Base command is the prefix of the command (e.g.: 'th test.lua ')
         file_index_str = ""
-        command = base_command
+        image_path = ""
         for field, values in arguments.items():
             # var_type = values[0]
             # required = values[1] Not being used now but required for future automation steps
@@ -70,17 +73,14 @@ class SuperResolutionServicer(grpc_bt_grpc.SuperResolutionServicer):
                         service.treat_image_input(arg_value, self.input_dir, "{}".format(field))
                     print("Image path: {}".format(image_path))
                     created_images.append(image_path)
-                    command += "--{} {} ".format(field, image_path)
                 except Exception as e:
                     log.error(e)
                     raise
             elif field == "model":
-                if request.model == "proSR":
-                    model_path += self.prosr_model
-                elif request.model == "proSRGAN":
-                    model_path += self.prosrgan_model
+                if request.model == "ESRGAN":
+                    model_path += self.esrgan_model
                 else:
-                    log.error("Input field model not recognized. Should be either \"proSR\" or \"proSRGAN\". Got: {}"
+                    log.error("Input field model not recognized. For now, only \"ESRGAN\" is accepted. Got: {}"
                               .format(request.model))
             elif field == "scale":
                 # If empty, fill with default, else check if valid
@@ -92,16 +92,19 @@ class SuperResolutionServicer(grpc_bt_grpc.SuperResolutionServicer):
                     except Exception as e:
                         log.error(e)
                         raise
-                if scale not in self.scale_dict[request.model]:
+                if scale in self.scale_dict[request.model]:
+                    model_path += scale
+                else:
                     log.error('Scale invalid. Should be one of {}.'.format(self.scale_dict[request.model]))
-                str_scale = str(scale)
-                model_path += str_scale + self.model_suffix
-                command += "--checkpoint {} --{} {} ".format(model_path, field, str_scale)
             else:
-                log.error("Command assembly error. Request field not found.")
+                log.error("Request field not found.")
                 return False
 
-        return command, file_index_str
+            if image_path == "":
+                log.error("Empty image_path (filename). Something went wrong when treating input.")
+            model_path += self.model_suffix
+
+        return image_path, model_path, file_index_str
 
     def increase_image_resolution(self, request, context):
         """Increases the resolution of a given image (request.image) """
@@ -112,12 +115,11 @@ class SuperResolutionServicer(grpc_bt_grpc.SuperResolutionServicer):
         # Python command call arguments. Key = argument name, value = tuple(type, required?, default_value)
         arguments = {"input": ("image", True, None),
                      "model": ("string", True, None),
-                     "scale": ("int", False, 2)}
+                     "scale": ("int", False, 4)}
 
-        # Treat inputs and assemble command
-        base_command = "python3.6 ./service/increase_resolution.py "
+        # Treat inputs
         try:
-            command, file_index_str = self.treat_inputs(base_command, request, arguments, created_images)
+            image_path, model_path, file_index_str = self.treat_inputs(request, arguments, created_images)
         except HTTPError as e:
             error_message = "Error downloading the input image \n" + e.read()
             log.error(error_message)
@@ -127,20 +129,31 @@ class SuperResolutionServicer(grpc_bt_grpc.SuperResolutionServicer):
             log.error(e)
             self.result.data = e
             return self.result
-        command += "--{} {}".format("output", self.output_dir)  # pre-defined for the service
 
-        log.debug("Python command generated: {}".format(command))
+        log.debug("Treated input.")
 
-        # Call super resolution. If it fails, log error, delete files and exit.
-        process = subprocess.Popen(command.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        model = arch.RRDBNet(3, 3, 64, 23, gc=32)
+        model.load_state_dict(torch.load(model_path), strict=True)
+        model.eval()
+        model = model.to(self.device)
+
+        log.debug('Model path {:s}. \nImage path {:s}. \nIncreasing Resolution...'.format(model_path, image_path))
+
+        # Read and process image
         try:
-            process.communicate()
+            img = cv2.imread(image_path, cv2.IMREAD_COLOR)
+            img = img * 1.0 / 255
+            img = torch.from_numpy(np.transpose(img[:, :, [2, 1, 0]], (2, 0, 1))).float()
+            img_lr = img.unsqueeze(0)
+            img_lr = img_lr.to(self.device)
+
+            with torch.no_grad():
+                output = model(img_lr).data.squeeze().float().cpu().clamp_(0, 1).numpy()
+            output = np.transpose(output[[2, 1, 0], :, :], (1, 2, 0))
+            output = (output * 255.0).round()
         except Exception as e:
-            self.result.data = e
-            log.debug("Returning on exception!")
             log.error(e)
-            for image in created_images:
-                service.clear_file(image)
+            self.result.data = e
             return self.result
 
         # Get output file path
@@ -150,6 +163,9 @@ class SuperResolutionServicer(grpc_bt_grpc.SuperResolutionServicer):
         output_image_path = self.output_dir + '/' + input_filename
         log.debug("Output image path: {}".format(output_image_path))
         created_images.append(output_image_path)
+
+        # Write output image
+        cv2.imwrite(output_image_path, output)
 
         # Prepare gRPC output message
         self.result = Image()

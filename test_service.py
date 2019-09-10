@@ -18,8 +18,8 @@ if __name__ == "__main__":
         grpc_method = "increase_image_resolution"
         input_image = \
             "https://www.gettyimages.ie/gi-resources/images/Homepage/Hero/UK/CMS_Creative_164657191_Kingfisher.jpg"
-        model = "proSR"
-        scale = 2
+        model = "ESRGAN"
+        scale = 4
 
         # create a stub (client)
         stub = grpc_bt_grpc.SuperResolutionStub(channel)

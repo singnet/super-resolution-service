@@ -1,5 +1,5 @@
 ## Create container using nvidia-docker and add shared memory size argument
-FROM pytorch/pytorch:0.4.1-cuda9-cudnn7-runtime
+FROM pytorch/pytorch:1.1.0-cuda10.0-cudnn7.5-runtime
 
 ARG git_owner
 ARG git_repo
@@ -7,6 +7,7 @@ ARG git_branch
 ENV SINGNET_REPOS=/opt/singnet
 ENV PROJECT_ROOT=${SINGNET_REPOS}/${git_repo}
 ENV SERVICE_DIR=${PROJECT_ROOT}/service
+ENV MODEL_PATH=${SERVICE_DIR}/models/RRDB_ESRGAN_x4.pth
 
 # Super resolution service specific:
 ENV PYTHONPATH=${PROJECT_ROOT}/service/lib
@@ -16,6 +17,7 @@ RUN apt-get update && \
     apt-get install -y \
     git \
     wget \
+    nano \
     unzip && \
     pip install --upgrade pip
 
@@ -31,7 +33,8 @@ RUN mkdir -p ${SINGNET_REPOS} && \
     cd ${SINGNET_REPOS} &&\
     git clone -b ${git_branch} --single-branch https://github.com/${git_owner}/${git_repo}.git &&\
     cd ${SERVICE_DIR} &&\
-    . ./download_models.sh
+    chmod +x download_models.py &&\
+    python download_models.py --filepath ${MODEL_PATH} --google_file_id 1TPrz5QKd8DHHt1k8SRtm6tMiPjz_Qene
 
 # Installing projects's original dependencies and building protobuf messages
 RUN cd ${PROJECT_ROOT} &&\
