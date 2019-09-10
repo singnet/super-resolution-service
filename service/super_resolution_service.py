@@ -67,6 +67,7 @@ class SuperResolutionServicer(grpc_bt_grpc.SuperResolutionServicer):
 
             # Deals with each field (or field type) separately. This is very specific to the lua command required.
             if field == "input":
+                log.debug("Treating input image field.")
                 assert(request.input != ""), "Input image field should not be empty."
                 try:
                     image_path, file_index_str = \
@@ -77,12 +78,14 @@ class SuperResolutionServicer(grpc_bt_grpc.SuperResolutionServicer):
                     log.error(e)
                     raise
             elif field == "model":
+                log.debug("Treating model field.")
                 if request.model == "ESRGAN":
                     model_path += self.esrgan_model
                 else:
                     log.error("Input field model not recognized. For now, only \"ESRGAN\" is accepted. Got: {}"
                               .format(request.model))
             elif field == "scale":
+                log.debug("Treating scale field.")
                 # If empty, fill with default, else check if valid
                 if request.scale == 0 or request.scale == "":
                     scale = default
@@ -103,6 +106,8 @@ class SuperResolutionServicer(grpc_bt_grpc.SuperResolutionServicer):
             if image_path == "":
                 log.error("Empty image_path (filename). Something went wrong when treating input.")
             model_path += self.model_suffix
+
+            log.debug("Successfully treated input.")
 
         return image_path, model_path, file_index_str
 
