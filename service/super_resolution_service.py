@@ -103,9 +103,9 @@ class SuperResolutionServicer(grpc_bt_grpc.SuperResolutionServicer):
                 log.error("Request field not found.")
                 return False
 
-            if image_path == "":
-                log.error("Empty image_path (filename). Something went wrong when treating input.")
-            model_path += self.model_suffix
+        if image_path == "":
+            log.error("Empty image_path (filename). Something went wrong when treating input.")
+        model_path += self.model_suffix
 
         log.debug("Successfully treated input.")
 
