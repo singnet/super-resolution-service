@@ -31,7 +31,7 @@ if __name__ == "__main__":
                                                      scale=scale)
         # make the call
         response = stub.increase_image_resolution(request)
-        print("Response received: {}".format(response))
+        print("First 100 characters of response: {}".format(response[:100]))
 
         # et voilà
         output_file_path = "./super_resolution_test_output.jpg"
