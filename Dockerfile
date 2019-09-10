@@ -15,6 +15,10 @@ ENV PYTHONPATH=${PROJECT_ROOT}/service/lib
 # Updating and installing common dependencies
 RUN apt-get update && \
     apt-get install -y \
+    libglib2.0-0 \
+    libsm6 \
+    libxext6 \
+    libxrender-dev \
     git \
     wget \
     nano \
