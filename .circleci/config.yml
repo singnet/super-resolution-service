@@ -222,8 +222,8 @@ jobs:
       CERTS_FOLDER: singnet/.certs
       SERVICE_RUN_COMMAND: bash -c "git pull origin ${CIRCLE_BRANCH};python3 run_service.py --ssl"
       SERVICE_TEST_COMMAND: bash -c "python3 test_service.py"
-      SNETD_PORT_MAINNET: 6309
-      SNETD_PORT_ROPSTEN: 6409
+      SNETD_PORT_MAINNET: 6409
+      SNETD_PORT_ROPSTEN: 6309
     steps:
       - deploy_command:
           docker_nvidia: true
