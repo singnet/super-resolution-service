@@ -111,8 +111,10 @@ class SuperResolutionServicer(grpc_bt_grpc.SuperResolutionServicer):
                 #               .format(request.model))
             elif field == "scale":
                 log.debug("Treating scale field. Forcing scale to be 4.")
-                # If empty, fill with default, else check if valid
                 scale = 4
+                model_path += str(scale)
+
+                # If empty, fill with default, else check if valid
                 # if request.scale == 0 or request.scale == "":
                 #     scale = default
                 # else:
@@ -121,10 +123,10 @@ class SuperResolutionServicer(grpc_bt_grpc.SuperResolutionServicer):
                 #     except Exception as e:
                 #         log.error(e)
                 #         raise
-                if scale in self.scale_dict[request.model]:
-                    model_path += str(scale)
-                else:
-                    log.error('Scale invalid. Should be one of {}.'.format(self.scale_dict[request.model]))
+                # if scale in self.scale_dict[request.model]:
+                #     model_path += str(scale)
+                # else:
+                #     log.error('Scale invalid. Should be one of {}.'.format(self.scale_dict[request.model]))
             else:
                 log.error("Request field not found.")
                 return False
