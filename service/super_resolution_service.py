@@ -11,11 +11,38 @@ import cv2
 import numpy as np
 import torch
 import service.RRDBNet_arch as arch
+from multiprocessing import Pool
 
 logging.basicConfig(
     level=10, format="%(asctime)s - [%(levelname)8s] - %(name)s - %(message)s"
 )
 log = logging.getLogger("super_resolution_service")
+
+
+def _increase_image_resolution(model_path, image_path):
+    device = torch.device('cuda')  # To run on GPU
+    model = arch.RRDBNet(3, 3, 64, 23, gc=32)
+    model.load_state_dict(torch.load(model_path), strict=True)
+    model.eval()
+    model = model.to(device)
+
+    log.debug('Model path {:s}. \nImage path {:s}. \nIncreasing Resolution...'.format(model_path, image_path))
+
+    # Read and process image
+    try:
+        img = cv2.imread(model_path, cv2.IMREAD_COLOR)
+        img = img * 1.0 / 255
+        img = torch.from_numpy(np.transpose(img[:, :, [2, 1, 0]], (2, 0, 1))).float()
+        img_lr = img.unsqueeze(0)
+        img_lr = img_lr.to(device)
+
+        with torch.no_grad():
+            output = model(img_lr).data.squeeze().float().cpu().clamp_(0, 1).numpy()
+        output = np.transpose(output[[2, 1, 0], :, :], (1, 2, 0))
+        output = (output * 255.0).round()
+        return output
+    except Exception as e:
+        raise e
 
 
 class SuperResolutionServicer(grpc_bt_grpc.SuperResolutionServicer):
@@ -26,8 +53,6 @@ class SuperResolutionServicer(grpc_bt_grpc.SuperResolutionServicer):
         log.debug("SuperResolutionServicer created!")
         
         self.result = Image()
-
-        self.device = torch.device('cuda')  # To run on GPU
 
         self.root_path = os.getcwd()
         self.input_dir = self.root_path + "/service/temp/input"
@@ -137,55 +162,43 @@ class SuperResolutionServicer(grpc_bt_grpc.SuperResolutionServicer):
 
         log.debug("Treated input.")
 
-        model = arch.RRDBNet(3, 3, 64, 23, gc=32)
-        model.load_state_dict(torch.load(model_path), strict=True)
-        model.eval()
-        model = model.to(self.device)
+        with Pool(1) as p:
+            try:
+                output = p.apply(_increase_image_resolution, (model_path, image_path))
+            except Exception as e:
+                log.error(e)
+                self.result.data = e
+                return self.result
+            # Get output file path
+            log.debug("Returning on service complete!")
+            input_filename = os.path.split(created_images[0])[1]
+            log.debug("Input file name: {}".format(input_filename))
+            output_image_path = self.output_dir + '/' + input_filename
+            log.debug("Output image path: {}".format(output_image_path))
 
-        log.debug('Model path {:s}. \nImage path {:s}. \nIncreasing Resolution...'.format(model_path, image_path))
+            try:
+                # Write output image
+                cv2.imwrite(output_image_path, output)
+                created_images.append(output_image_path)
+            except Exception as e:
+                log.error("Error writing output image to file.")
+                log.error(e)
+                self.result.data = e
+                return self.result
 
-        # Read and process image
-        try:
-            img = cv2.imread(image_path, cv2.IMREAD_COLOR)
-            img = img * 1.0 / 255
-            img = torch.from_numpy(np.transpose(img[:, :, [2, 1, 0]], (2, 0, 1))).float()
-            img_lr = img.unsqueeze(0)
-            img_lr = img_lr.to(self.device)
+            # Prepare gRPC output message
+            if input_filename.split('.')[1] == 'png':
+                log.debug("Encoding from PNG.")
+                self.result.data = service.png_to_base64(output_image_path).decode("utf-8")
+            else:
+                log.debug("Encoding from JPG.")
+                self.result.data = service.jpg_to_base64(output_image_path, open_file=True).decode("utf-8")
+            log.debug("Output image generated. Service successfully completed.")
 
-            with torch.no_grad():
-                output = model(img_lr).data.squeeze().float().cpu().clamp_(0, 1).numpy()
-            output = np.transpose(output[[2, 1, 0], :, :], (1, 2, 0))
-            output = (output * 255.0).round()
-        except Exception as e:
-            log.error(e)
-            self.result.data = e
+            for image in created_images:
+                service.serviceUtils.clear_file(image)
+
             return self.result
-
-        # Get output file path
-        log.debug("Returning on service complete!")
-        input_filename = os.path.split(created_images[0])[1]
-        log.debug("Input file name: {}".format(input_filename))
-        output_image_path = self.output_dir + '/' + input_filename
-        log.debug("Output image path: {}".format(output_image_path))
-        created_images.append(output_image_path)
-
-        # Write output image
-        cv2.imwrite(output_image_path, output)
-
-        # Prepare gRPC output message
-        self.result = Image()
-        if input_filename.split('.')[1] == 'png':
-            log.debug("Encoding from PNG.")
-            self.result.data = service.png_to_base64(output_image_path).decode("utf-8")
-        else:
-            log.debug("Encoding from JPG.")
-            self.result.data = service.jpg_to_base64(output_image_path, open_file=True).decode("utf-8")
-        log.debug("Output image generated. Service successfully completed.")
-
-        for image in created_images:
-            service.serviceUtils.clear_file(image)
-
-        return self.result
 
 
 def serve(max_workers=5, port=7777):
