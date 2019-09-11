@@ -20,13 +20,13 @@ log = logging.getLogger("super_resolution_service")
 
 
 def _increase_image_resolution(model_path, image_path):
+    log.debug('Model path {:s}. \nImage path {:s}. \nIncreasing Resolution...'.format(model_path, image_path))
+
     device = torch.device('cuda')  # To run on GPU
     model = arch.RRDBNet(3, 3, 64, 23, gc=32)
     model.load_state_dict(torch.load(model_path), strict=True)
     model.eval()
     model = model.to(device)
-
-    log.debug('Model path {:s}. \nImage path {:s}. \nIncreasing Resolution...'.format(model_path, image_path))
 
     # Read and process image
     try:
