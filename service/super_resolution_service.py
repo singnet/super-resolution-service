@@ -104,7 +104,7 @@ class SuperResolutionServicer(grpc_bt_grpc.SuperResolutionServicer):
                     raise
             elif field == "model":
                 log.debug("Treating model field. Forcing model to be ESRGAN.")
-                request.model = "ESRGAN"
+                #request.model = "ESRGAN"
                 if request.model == "ESRGAN":
                     model_path += self.esrgan_model
                 else:
@@ -112,7 +112,7 @@ class SuperResolutionServicer(grpc_bt_grpc.SuperResolutionServicer):
                               .format(request.model))
             elif field == "scale":
                 log.debug("Treating scale field. Forcing scale to be 4.")
-                request.scale = 4
+                #request.scale = 4
                 # If empty, fill with default, else check if valid
                 if request.scale == 0 or request.scale == "":
                     scale = default
