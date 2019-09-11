@@ -112,7 +112,7 @@ class SuperResolutionServicer(grpc_bt_grpc.SuperResolutionServicer):
                               .format(request.model))
             elif field == "scale":
                 log.debug("Treating scale field. Forcing scale to be 4.")
-                request.model = 4
+                request.scale = 4
                 # If empty, fill with default, else check if valid
                 if request.scale == 0 or request.scale == "":
                     scale = default
