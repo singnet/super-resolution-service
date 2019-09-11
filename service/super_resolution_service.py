@@ -30,7 +30,7 @@ def _increase_image_resolution(model_path, image_path):
 
     # Read and process image
     try:
-        img = cv2.imread(model_path, cv2.IMREAD_COLOR)
+        img = cv2.imread(image_path, cv2.IMREAD_COLOR)
         img = img * 1.0 / 255
         img = torch.from_numpy(np.transpose(img[:, :, [2, 1, 0]], (2, 0, 1))).float()
         img_lr = img.unsqueeze(0)
