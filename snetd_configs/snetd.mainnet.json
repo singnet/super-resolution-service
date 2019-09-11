@@ -1,30 +1,9 @@
 {
-    "daemon_end_point": "0.0.0.0:6308",
-    "ethereum_json_rpc_endpoint": "https://mainnet.infura.io",
+    "blockchain_network_selected": "main",
+    "burst_size": 1,
+    "daemon_end_point": "0.0.0.0:6309",
+    "free_call_signer_address": "0x3Bb9b2499c283cec176e7C707Ecb495B7a961ebf",
     "ipfs_end_point": "http://ipfs.singularitynet.io:80",
-    "registry_address_key": "0xb3180a92e210b45e3447976a412ac0df859febaf",
-    "passthrough_enabled": true,
-    "passthrough_endpoint": "http://localhost:7016",
-    "organization_id": "snet",
-    "service_id": "super-resolution",
-
-    "payment_channel_storage_server": {
-        "id": "storage-mainnet",
-        "host": "127.0.0.1",
-        "client_port": 2379,
-        "peer_port": 2380,
-        "token": "unique-token",
-        "cluster": "storage-mainnet=http://127.0.0.1:2380",
-        "data_dir": "etcd/storage-data-dir-mainnet.etcd",
-        "enabled": true
-    },
-
-    "payment_channel_storage_client": {
-        "connection_timeout": "5s",
-        "request_timeout": "3s",
-        "endpoints": ["http://127.0.0.1:2379"]
-    },
-
     "log": {
         "level": "debug",
         "output": {
@@ -34,5 +13,17 @@
             "rotation_time_in_sec": 86400,
             "type": "file"
         }
-    }
+    },
+    "metering_end_point": "https://mainnet-marketplace.singularitynet.io/metering",
+    "organization_id": "snet",
+    "passthrough_enabled": true,
+    "passthrough_endpoint": "http://localhost:7016",
+    "payent_channel_ca_path": "/opt/singnet/.certs/ca.pem",
+    "payent_channel_cert_path": "/opt/singnet/.certs/client.pem",
+    "payent_channel_key_path": "/opt/singnet/.certs/client-key.pem",
+    "pvt_key_for_metering": "3ebc49246cac4b107584b8c5d7cecec2df5f0884167810813f34d52e09c0a3e7",
+    "rate_limit_per_minute": 1,
+    "service_id": "super-resolution",
+    "ssl_cert": "/opt/singnet/.certs/fullchain.pem",
+    "ssl_key": "/opt/singnet/.certs/privkey.pem"
 }
