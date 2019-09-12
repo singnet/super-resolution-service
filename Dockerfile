@@ -38,7 +38,7 @@ RUN mkdir -p ${SINGNET_REPOS} && \
     git clone -b ${git_branch} --single-branch https://github.com/${git_owner}/${git_repo}.git &&\
     cd ${SERVICE_DIR} &&\
     chmod +x download_models.py &&\
-    python download_models.py --filepath ${MODEL_PATH} --google_file_id 1ZsneFJ_mQUdn8UEheMiBgPfMi_fVdmhE
+    python download_models.py --filepath ${MODEL_PATH} --google_file_id 1TQgKnXYaacZQMSq8nSK4aJEIbubR05Gz
 
 # Installing projects's original dependencies and building protobuf messages
 RUN cd ${PROJECT_ROOT} &&\
