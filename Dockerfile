@@ -33,7 +33,7 @@ RUN SNETD_VERSION=`curl -s https://api.github.com/repos/singnet/snet-daemon/rele
     mv snet-daemon-${SNETD_VERSION}-linux-amd64/snetd /usr/bin/snetd
 
 # Cloning service repository and downloading models
-RUN mkdir -p ${SINGNET_REPOS} && \
+RUN mkdir -p ${MODEL_PATH} && \
     cd ${SINGNET_REPOS} &&\
     git clone -b ${git_branch} --single-branch https://github.com/${git_owner}/${git_repo}.git &&\
     cd ${MODEL_PATH} &&\
