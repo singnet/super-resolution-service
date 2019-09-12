@@ -6,8 +6,7 @@ ARG git_repo
 ARG git_branch
 ENV SINGNET_REPOS=/opt/singnet
 ENV PROJECT_ROOT=${SINGNET_REPOS}/${git_repo}
-ENV SERVICE_DIR=${PROJECT_ROOT}/service
-ENV MODEL_PATH=${SERVICE_DIR}/models/
+ENV MODEL_PATH=${PROJECT_ROOT}/service/models
 
 # Super resolution service specific:
 ENV PYTHONPATH=${PROJECT_ROOT}/service/lib
@@ -36,7 +35,6 @@ RUN SNETD_VERSION=`curl -s https://api.github.com/repos/singnet/snet-daemon/rele
 RUN mkdir -p ${SINGNET_REPOS} && \
     cd ${SINGNET_REPOS} &&\
     git clone -b ${git_branch} --single-branch https://github.com/${git_owner}/${git_repo}.git &&\
-    mkdir -p ${MODEL_PÀTH} && \
     cd ${MODEL_PATH} &&\
     wget --no-check-certificate https://snet-models.s3.amazonaws.com/bh/PreTrainedDNNModels/RRDB_ESRGAN_x4.pth
 
