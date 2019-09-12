@@ -33,9 +33,10 @@ RUN SNETD_VERSION=`curl -s https://api.github.com/repos/singnet/snet-daemon/rele
     mv snet-daemon-${SNETD_VERSION}-linux-amd64/snetd /usr/bin/snetd
 
 # Cloning service repository and downloading models
-RUN mkdir -p ${MODEL_PATH} && \
+RUN mkdir -p ${SINGNET_REPOS} && \
     cd ${SINGNET_REPOS} &&\
     git clone -b ${git_branch} --single-branch https://github.com/${git_owner}/${git_repo}.git &&\
+    mkdir -p ${MODEL_PÀTH} && \
     cd ${MODEL_PATH} &&\
     wget --no-check-certificate https://snet-models.s3.amazonaws.com/bh/PreTrainedDNNModels/RRDB_ESRGAN_x4.pth
 
