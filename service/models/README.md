@@ -1,0 +1,1 @@
+Please download models into this folder: https://snet-models.s3.amazonaws.com/bh/PreTrainedDNNModels/RRDB_ESRGAN_x4.pth
