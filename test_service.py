@@ -19,7 +19,7 @@ if __name__ == "__main__":
         input_image = \
             "https://www.gettyimages.ie/gi-resources/images/Homepage/Hero/UK/CMS_Creative_164657191_Kingfisher.jpg"
         model = "proSR"
-        scale = 2
+        scale = 5
 
         # create a stub (client)
         stub = grpc_bt_grpc.SuperResolutionStub(channel)
@@ -31,7 +31,7 @@ if __name__ == "__main__":
                                                      scale=scale)
         # make the call
         response = stub.increase_image_resolution(request)
-        print("Response received: {}".format(response))
+        print("Response received!")
 
         # et voilà
         output_file_path = "./super_resolution_test_output.jpg"

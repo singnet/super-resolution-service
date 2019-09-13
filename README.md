@@ -14,13 +14,13 @@
 [![GitHub License](	https://img.shields.io/github/license/singnet/dnn-model-services.svg?style=popover)](https://github.com/singnet/super-resolution-service/blob/master/LICENSE)
 [![CircleCI](https://circleci.com/gh/singnet/super-resolution-service.svg?style=svg)](https://circleci.com/gh/singnet/super-resolution-service)
 
-This service uses convolutional neural networks to increase the resolution of an image by reconstructing rather than simply resizing it. It can upscale images by a factor of 2, 4 or 8.
+This service uses convolutional neural networks to increase the resolution of an image by reconstructing rather than simply resizing it. The images are upscaled by a factor of 4.
 
-This repository was forked from [fperazzi/proSR](https://github.com/fperazzi/proSR). The original code is written in Python 3 (using Pytorch) and has been integrated into the SingularityNET using Python 3.6.
+This repository was forked from [xinntao/ESRGAN](https://github.com/xinntao/ESRGAN). The original code is written in Python 3 (using Pytorch) and has been integrated into the SingularityNET using Python 3.6.
 
 Refer to:
 - [The User's Guide](https://singnet.github.io/super-resolution-service/): for information about how to use this code as a SingularityNET service;
-- [The Original Repository](https://github.com/fperazzi/proSR): for up-to-date information on [FPerazzi](https://github.com/fperazzi) implementation of this code.
+- [The Original Repository](https://github.com/xinntao/ESRGAN): for up-to-date information on [xinntao](https://github.com/xinntao) implementation of this code.
 - [SingularityNET Wiki](https://github.com/singnet/wiki): for information and tutorials on how to use the SingularityNET and its services.
 
 ## Contributing and Reporting Issues
@@ -31,6 +31,6 @@ Please read our [guidelines](https://github.com/singnet/wiki/blob/master/guideli
 
 * **Ramon Durães** - *Maintainer* - [SingularityNET](https://www.singularitynet.io)
 
-## Licenses
+## License
 
-This project is licensed under the MIT License. The original repository is licensed under the GNU General Public License. See the [LICENSE](LICENSE) file for details. 
+The original repository is licensed under the Apache License v2.0. See the [LICENSE](LICENSE) file for details. 

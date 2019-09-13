@@ -11,15 +11,13 @@
 
 This service uses convolutional neural networks to increase the resolution of an image by reconstructing rather than simply resizing it.
 
-It is part of SingularityNET's third party services, [originally implemented by fperazzi](https://github.com/fperazzi/proSR).
+It is part of SingularityNET's third party services, [originally implemented by xinntao](https://github.com/xinntao/ESRGAN).
 
 ### Welcome
 
 The service takes an image as input passes it through to a pre-trained deep neural network model that increases its original resolution.
 
-There are two types of pre-trained models available: proSR and proSRGAN (proSR trained with adversarial loss). According to the authors, proSRGAN generates lower PSNR (peak signal to noise ratio) but higher details. 
-
-The image resolution can be increased by a scale of 2, 4 or 8 when using proSR models or by 4 or 8 using proSRGAN models.
+The pre-trained model made available in this service is called "ESRGAN" and upscales images by a factor of 4. It won the first place in PIRM2018-SR competition (region 3) and got the best perceptual index. 
 
 ### What’s the point?
 
@@ -30,18 +28,18 @@ If an image of interest is too small for a given application, this service can b
 The user must provide the following inputs in order to start the service and get a response:
 
 Inputs:
-  - `input`: The URL for a .jpg or .png input image.
-  - `model`: Can be either "proSR" or "proSRGAN".
-  - `scale`: The upscaling factor as an integer. Can take values \[2, 4 or 8\] for "proSR" models or \[4 or 8\] for "proSRGAN" models.
+  - `input`: The URL for the input image. **Please note that while .jpg and .png image formats are both accepted, results are better on .png images. JPEG compression generates "blocky" artifacts that are emphasized on the output, generating suboptimal results.** 
+  - `model`: The pre-trained mode. Should be "ESRGAN". This field takes only one model option but was kept in case different models are added to the service.
+  - `scale`: The upscaling factor as an integer. Should be 4. This field takes only one scale option but was kept in case different models are added to the service.
 Outputs:
   - `output_image`: A base64 encoded image that has the same extension of the input image.
 
-You can use this service at [SingularityNET DApp](http://alpha.singularitynet.io/) by clicking on `snet/super-resolution`.
+You can use this service at [SingularityNET DApp](http://beta.singularitynet.io/) by clicking on `snet/super-resolution`.
 
 You can also call the service from SingularityNET CLI (`snet`). Assuming that you have an open channel (`id: 269`) to this service:
 
 ```
-$ snet client call 269 0 54.203.198.53:7017 increase_image_resolution '{"input": "https://www.gettyimages.ie/gi-resources/images/Homepage/Hero/UK/CMS_Creative_164657191_Kingfisher.jpg", "model": "proSR", "scale": 2}'
+$ snet client call 269 0 34.216.72.29:6409 increase_image_resolution '{"input": "https://www.gettyimages.ie/gi-resources/images/Homepage/Hero/UK/CMS_Creative_164657191_Kingfisher.jpg", "model": "ESRGAN", "scale": 4}'
 ```
 
 Go to [this tutorial](https://github.com/singnet/wiki/tree/master/tutorials/howToPublishService) to learn more about publishing, using and deleting a service.
@@ -50,18 +48,18 @@ Go to [this tutorial](https://github.com/singnet/wiki/tree/master/tutorials/howT
 
 Example:
 
-- Model: "proSR"
-- Scale: 2
+- Model: "ESRGAN"
+- Scale: 4
 - Input image:
 
-![Tiger](assets/users_guide/tiger_original.jpeg)
+![Baboon](assets/users_guide/baboon.png)
 
 - Output image:
 
-![Tiger_proSR_2](assets/users_guide/tiger_proSR_2.jpeg)
+![Baboon_ESRGANx4](assets/users_guide/baboon_rlt.png)
 
 Comparison:
 
-Service Output (proSR)             | Simple Bicubic Upscaling
+Service Output (ESRGAN)             | Simple Bicubic Upscaling
 :---------------------------------:|:-------------------------:
-<img src="assets/users_guide/tiger_proSR_2.jpeg"> | <img src="assets/users_guide/tiger_bicubic.jpeg">
+<img src="assets/users_guide/baboon_rlt.png"> | <img src="assets/users_guide/baboon_bicubic.png">

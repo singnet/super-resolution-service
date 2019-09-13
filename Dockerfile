@@ -1,12 +1,12 @@
 ## Create container using nvidia-docker and add shared memory size argument
-FROM pytorch/pytorch:0.4.1-cuda9-cudnn7-runtime
+FROM pytorch/pytorch:1.1.0-cuda10.0-cudnn7.5-runtime
 
 ARG git_owner
 ARG git_repo
 ARG git_branch
 ENV SINGNET_REPOS=/opt/singnet
 ENV PROJECT_ROOT=${SINGNET_REPOS}/${git_repo}
-ENV SERVICE_DIR=${PROJECT_ROOT}/service
+ENV MODEL_PATH=${PROJECT_ROOT}/service/models
 
 # Super resolution service specific:
 ENV PYTHONPATH=${PROJECT_ROOT}/service/lib
@@ -14,8 +14,13 @@ ENV PYTHONPATH=${PROJECT_ROOT}/service/lib
 # Updating and installing common dependencies
 RUN apt-get update && \
     apt-get install -y \
+    libglib2.0-0 \
+    libsm6 \
+    libxext6 \
+    libxrender-dev \
     git \
     wget \
+    nano \
     unzip && \
     pip install --upgrade pip
 
@@ -30,8 +35,8 @@ RUN SNETD_VERSION=`curl -s https://api.github.com/repos/singnet/snet-daemon/rele
 RUN mkdir -p ${SINGNET_REPOS} && \
     cd ${SINGNET_REPOS} &&\
     git clone -b ${git_branch} --single-branch https://github.com/${git_owner}/${git_repo}.git &&\
-    cd ${SERVICE_DIR} &&\
-    . ./download_models.sh
+    cd ${MODEL_PATH} &&\
+    wget --no-check-certificate https://snet-models.s3.amazonaws.com/bh/PreTrainedDNNModels/RRDB_ESRGAN_x4.pth
 
 # Installing projects's original dependencies and building protobuf messages
 RUN cd ${PROJECT_ROOT} &&\
