@@ -39,7 +39,7 @@ You can use this service at [SingularityNET DApp](http://beta.singularitynet.io/
 You can also call the service from SingularityNET CLI (`snet`). Assuming that you have an open channel (`id: 269`) to this service:
 
 ```
-$ snet client call 269 0 34.216.72.29:6409 increase_image_resolution '{"input": "https://www.gettyimages.ie/gi-resources/images/Homepage/Hero/UK/CMS_Creative_164657191_Kingfisher.jpg", "model": "ESRGAN", "scale": 4}'
+$ snet client call snet super-resolution increase_image_resolution '{"input": "https://www.gettyimages.ie/gi-resources/images/Homepage/Hero/UK/CMS_Creative_164657191_Kingfisher.jpg", "model": "ESRGAN", "scale": 4}'
 ```
 
 Go to [this tutorial](https://github.com/singnet/wiki/tree/master/tutorials/howToPublishService) to learn more about publishing, using and deleting a service.
