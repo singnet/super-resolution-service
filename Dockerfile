@@ -21,6 +21,7 @@ RUN apt-get update && \
     git \
     wget \
     nano \
+    sudo \
     unzip && \
     pip install --upgrade pip
 
