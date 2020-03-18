@@ -219,7 +219,7 @@ jobs:
     working_directory: ~/singnet
     environment:
       SERVICE_NAME: super-resolution
-      CERTS_FOLDER: singnet/.certs
+      CERTS_FOLDER: /home/ubuntu/singnet/.certs
       SERVICE_RUN_COMMAND: bash -c "git pull origin ${CIRCLE_BRANCH};python3 run_service.py --ssl"
       SERVICE_TEST_COMMAND: bash -c "python3 test_service.py"
       SNETD_PORT_MAINNET: 6409
