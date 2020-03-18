@@ -26,7 +26,7 @@ RUN apt-get update && \
     pip install --upgrade pip
 
 # Installing snet-daemon + dependencies
-RUN SNETD_VERSION=`curl -s https://api.github.com/repos/singnet/snet-daemon/releases/latest | grep -oP '"tag_name": "\K(.*)(?=")' || echo "v3.1.1"` && \
+RUN SNETD_VERSION=`curl -s https://api.github.com/repos/singnet/snet-daemon/releases/latest | grep -oP '"tag_name": "\K(.*)(?=")' || echo "v3.1.2"` && \
     echo 'version' $SNETD_VERSION && \
     wget https://github.com/singnet/snet-daemon/releases/download/${SNETD_VERSION}/snet-daemon-${SNETD_VERSION}-linux-amd64.tar.gz && \
     tar -xvf snet-daemon-${SNETD_VERSION}-linux-amd64.tar.gz && \
