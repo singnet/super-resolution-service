@@ -42,8 +42,8 @@ RUN mkdir -p ${SINGNET_REPOS} && \
 
 # Installing projects's original dependencies and building protobuf messages
 RUN cd ${PROJECT_ROOT} && \
-    pip3 install -U pip==20.3.4 && \
-    pip3 install -r requirements.txt && \
+    pip install -U pip==20.3.4 && \
+    pip install -r requirements.txt && \
     sh buildproto.sh
 
 WORKDIR ${PROJECT_ROOT}
