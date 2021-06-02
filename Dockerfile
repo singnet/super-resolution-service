@@ -4,6 +4,8 @@ FROM pytorch/pytorch:1.1.0-cuda10.0-cudnn7.5-runtime
 ARG git_owner
 ARG git_repo
 ARG git_branch
+ARG snetd_version
+
 ENV SINGNET_REPOS=/opt/singnet
 ENV PROJECT_ROOT=${SINGNET_REPOS}/${git_repo}
 ENV MODEL_PATH=${PROJECT_ROOT}/service/models
