@@ -2,6 +2,6 @@ grpcio==1.27.2
 grpcio-tools==1.27.2
 scikit-image==0.14.1
 easydict==1.9
-numpy==1.16.3
+numpy==1.22.0
 requests==2.21.0
 opencv-python==4.1.1.26
